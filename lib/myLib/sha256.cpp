@@ -93,9 +93,11 @@ std::string SHA256::sha256(std::string filename){
 
     
     fs::path path = filename; 
-    msg_len = fs::file_size(path);
+    unsigned long long msg_len = fs::file_size(path);
+    unsigned long long msg_len_counter = msg_len;
     
     std::cout << msg_len/64 << std::endl;
+    std::cout << msg_len << std::endl;
 
     std::ifstream file(filename, std::ios::in | std::ios::binary);
     
@@ -110,31 +112,46 @@ std::string SHA256::sha256(std::string filename){
             w[i2] |= (file.get() << 16);
             w[i2] |= (file.get() << 8);
             w[i2] |= file.get();
+            msg_len_counter -= 4;
         }
         update();
     }
     //std::cout << "END" << std::endl;
 
     for (int i = 0; i <= 15; i++){
+
+            /*
+             * file.eof()  -> msg_len == 022
+             *
+             */
+
+
             w[i] = 0x00000000;
-            if(!file.eof()){
+            if(msg_len_counter > 0){
+
+                // dbg
                 // ifstream.peek();
-                if(file.eof()){std::cout << "wwfnhuwef";}
+                /*if(file.eof()){std::cout << "where: ";}
                 char b = file.get();
-                if(file.eof()){std::cout << "wwfnhuwef";}
+                if(file.eof()){std::cout << "here2: ";}
                 std::bitset<8> c(b);
                 std::cout << c << '\n';
                 std::cout << b << '\n';
                 char a = file.get();
-                std::cout << a << '\n';
+                std::cout << a << '\n';*/
+                //dbg end
+
                 w[i] |= (file.get() << 24);
+                msg_len_counter -= 1;
+
             } else{
                 w[i] |= (0x80 << 24);
                 std::cout << "1" << std::endl;
                 break;
             }
-            if(!file.eof()){
+            if(msg_len_counter > 0){
                 w[i] |= (file.get() << 16);
+                msg_len_counter -= 1;
             } else{
                 std::bitset<32> x1(w[i]);
                 std::cout << x1 << '\n';
@@ -145,15 +162,17 @@ std::string SHA256::sha256(std::string filename){
                 std::cout << x << '\n';
                 break;
             }
-            if(!file.eof()){
+            if(msg_len_counter > 0){
                 w[i] |= (file.get() << 8);
+                msg_len_counter -= 1;
             } else{
                 w[i] |= (0x80 << 24);
                 std::cout << "3" << std::endl;
                 break;
             }
-            if(!file.eof()){
+            if(msg_len_counter > 0){
                 w[i] |= file.get();
+                msg_len_counter -= 1;
             } else{
                 w[i] |= (0x80 << 24);
                 std::cout << "4" << std::endl;

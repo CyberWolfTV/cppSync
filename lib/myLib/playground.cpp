@@ -40,6 +40,7 @@ int main(){
    /*
    g++ first\ test.cpp playground.cpp -o ~/Clipboard/a.out
    alias build2="g++ first\ test.cpp playground.cpp -lstdc++fs -o ~/Clipboard/a.out"
+   alias build2="g++ sha256.cpp playground.cpp -lstdc++fs -o a.out"
 
    */
 
