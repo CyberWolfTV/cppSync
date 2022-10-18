@@ -95,6 +95,7 @@ std::string SHA256::sha256(std::string filename){
     fs::path path = filename; 
     unsigned long long msg_len = fs::file_size(path);
     unsigned long long msg_len_counter = msg_len;
+    msg_len += 4;
     
     std::cout << msg_len/64 << std::endl;
     std::cout << msg_len << std::endl;
@@ -142,7 +143,7 @@ std::string SHA256::sha256(std::string filename){
                 //dbg end
 
                 w[i] |= (file.get() << 24);
-                msg_len_counter -= 1;
+                msg_len_counter--;
 
             } else{
                 w[i] |= (0x80 << 24);
@@ -151,11 +152,11 @@ std::string SHA256::sha256(std::string filename){
             }
             if(msg_len_counter > 0){
                 w[i] |= (file.get() << 16);
-                msg_len_counter -= 1;
+                msg_len_counter--;
             } else{
                 std::bitset<32> x1(w[i]);
                 std::cout << x1 << '\n';
-                w[i] |= (0x80 << 24);
+                w[i] |= (0x80 << 16);
                 
                 std::cout << "2" << std::endl;
                 std::bitset<32> x(w[i]);
@@ -164,21 +165,22 @@ std::string SHA256::sha256(std::string filename){
             }
             if(msg_len_counter > 0){
                 w[i] |= (file.get() << 8);
-                msg_len_counter -= 1;
+                msg_len_counter--;
             } else{
-                w[i] |= (0x80 << 24);
+                w[i] |= (0x80 << 8);
                 std::cout << "3" << std::endl;
                 break;
             }
             if(msg_len_counter > 0){
                 w[i] |= file.get();
-                msg_len_counter -= 1;
+                msg_len_counter--;
             } else{
-                w[i] |= (0x80 << 24);
+                w[i] |= 0x80;
                 std::cout << "4" << std::endl;
                 break;
             }
         }
+        
     
 
     
