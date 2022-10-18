@@ -128,6 +128,7 @@ std::string SHA256::sha256(std::string filename){
 
 
             w[i] = 0x00000000;
+            //step 1
             if(msg_len_counter > 0){
 
                 // dbg
@@ -146,17 +147,22 @@ std::string SHA256::sha256(std::string filename){
                 msg_len_counter--;
 
             } else{
-                w[i] |= (0x80 << 24);
+                w[i] |= ('\n' << 24);
+                w[i] |= (0x80 << 16);
                 std::cout << "1" << std::endl;
                 break;
             }
+
+            //step 2
             if(msg_len_counter > 0){
                 w[i] |= (file.get() << 16);
                 msg_len_counter--;
             } else{
+                w[i] |= ('\n' << 16);
+
                 std::bitset<32> x1(w[i]);
                 std::cout << x1 << '\n';
-                w[i] |= (0x80 << 16);
+                w[i] |= (0x80 << 8);
                 
                 std::cout << "2" << std::endl;
                 std::bitset<32> x(w[i]);
@@ -167,7 +173,8 @@ std::string SHA256::sha256(std::string filename){
                 w[i] |= (file.get() << 8);
                 msg_len_counter--;
             } else{
-                w[i] |= (0x80 << 8);
+                w[i] |= ('\n' << 8);
+                w[i] |= 0x80;
                 std::cout << "3" << std::endl;
                 break;
             }
@@ -175,7 +182,8 @@ std::string SHA256::sha256(std::string filename){
                 w[i] |= file.get();
                 msg_len_counter--;
             } else{
-                w[i] |= 0x80;
+                w[i] |= '\n';
+                w[i+1] |= (0x80 << 24);
                 std::cout << "4" << std::endl;
                 break;
             }
