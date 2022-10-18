@@ -5,6 +5,8 @@
 #include <iostream>
 #include <bitset>//dbg
 
+#define DEBUG //dbg
+
 namespace fs = std::experimental::filesystem;
 
 //#include <cstring>
@@ -23,14 +25,13 @@ void SHA256::init(){
 
 
 void SHA256::update(){
-    std::cout << "upadet" << std::endl;
-    // its filling all the w and doing the compression
+    // its filling all the w
     for(short i = 16; i <= 63; i++){
         w[i] = (
                 w[i-16] + 
                 (
-                    ((w[i-15] >> 7) | (w[i-15] << 25)) |
-                    ((w[i-15] >> 18) | (w[i-15] << 14)) |
+                    ((w[i-15] >> 7) | (w[i-15] << 25)) ^
+                    ((w[i-15] >> 18) | (w[i-15] << 14)) ^
                     // 10110110 >> 3 = 00010110
                     // 10110110 << 5 = 11000000
                     // 10110110 rot_r= 11010110
@@ -39,8 +40,8 @@ void SHA256::update(){
                 ) + 
                 w[i-7] +
                 (   // used -15 everywhere here
-                    ((w[i-2] >> 17) | (w[i-2] << 15)) |
-                    ((w[i-2] >> 19) | (w[i-2] << 13)) |
+                    ((w[i-2] >> 17) | (w[i-2] << 15)) ^
+                    ((w[i-2] >> 19) | (w[i-2] << 13)) ^
                     (w[i-2] >> 10)
                 )
             ) % 0x100000000;
@@ -48,13 +49,13 @@ void SHA256::update(){
     
     // compression
     init(); //inits the wv[i]
-    //abcdefgh
+
     unsigned int Temp1 = 0x00000000;
     unsigned int Temp2 = 0x00000000;
     for(int i = 0; i <= 63; i++){
         Temp1 = (wv[7] + (
-            ((wv[4] >> 6) | (w[4] << 26))  |
-            ((wv[4] >> 11) | (w[4] << 21)) |
+            ((wv[4] >> 6) | (w[4] << 26))  ^
+            ((wv[4] >> 11) | (w[4] << 21)) ^
             ((wv[4] >> 25) | (w[4] << 7))
             ) + (
             //(e and f) xor ((not e) and g)
@@ -62,8 +63,8 @@ void SHA256::update(){
             ) + k[i] + w[i]) % 0x100000000;
         
         Temp2 = ((
-            ((wv[0] >> 2) | (w[0] << 30))  |
-            ((wv[0] >> 13) | (w[0] << 19)) |
+            ((wv[0] >> 2) | (w[0] << 30))  ^
+            ((wv[0] >> 13) | (w[0] << 19)) ^
             ((wv[0] >> 22) | (w[0] << 10))
             ) + (
             (wv[0] & wv[1]) | (wv[0] & wv[2]) | (wv[1] & wv[2])
@@ -95,7 +96,7 @@ std::string SHA256::sha256(std::string filename){
     fs::path path = filename; 
     unsigned long long msg_len = fs::file_size(path);
     unsigned long long msg_len_counter = msg_len;
-    msg_len += 4;
+   
     
     std::cout << msg_len/64 << std::endl;
     std::cout << msg_len << std::endl;
@@ -106,7 +107,7 @@ std::string SHA256::sha256(std::string filename){
     
     for(unsigned long long i = msg_len/64; i != 0; i--){
         // read 16 x 4 bytes into w[0] - w[15]
-        //std::cout << "END" << std::endl;
+        // update() after every round
         for (int i2 = 0; i2 <= 15; i2++){
             w[i2] &= 0x00000000;
             w[i2] |= (file.get() << 24);
@@ -117,90 +118,85 @@ std::string SHA256::sha256(std::string filename){
         }
         update();
     }
-    //std::cout << "END" << std::endl;
 
+    // Read the rest of the file and write it to the w[]
+    // add 0x0A = '\n' -> for having the filehash not
+    // the hash of the content
     for (int i = 0; i <= 15; i++){
+        w[i] = 0x00000000;
 
-            /*
-             * file.eof()  -> msg_len == 022
-             *
-             */
-
-
-            w[i] = 0x00000000;
-            //step 1
-            if(msg_len_counter > 0){
-
+        if(msg_len_counter > 0){
+            w[i] |= (file.get() << 24);
+            msg_len_counter--;
+                /*
                 // dbg
                 // ifstream.peek();
-                /*if(file.eof()){std::cout << "where: ";}
+                if(file.eof()){std::cout << "where: ";}
                 char b = file.get();
                 if(file.eof()){std::cout << "here2: ";}
                 std::bitset<8> c(b);
                 std::cout << c << '\n';
                 std::cout << b << '\n';
                 char a = file.get();
-                std::cout << a << '\n';*/
+                std::cout << a << '\n';
                 //dbg end
-
-                w[i] |= (file.get() << 24);
-                msg_len_counter--;
-
-            } else{
-                w[i] |= ('\n' << 24);
-                w[i] |= (0x80 << 16);
-                std::cout << "1" << std::endl;
-                break;
-            }
-
-            //step 2
-            if(msg_len_counter > 0){
-                w[i] |= (file.get() << 16);
-                msg_len_counter--;
-            } else{
-                w[i] |= ('\n' << 16);
-
-                std::bitset<32> x1(w[i]);
-                std::cout << x1 << '\n';
-                w[i] |= (0x80 << 8);
-                
-                std::cout << "2" << std::endl;
-                std::bitset<32> x(w[i]);
-                std::cout << x << '\n';
-                break;
-            }
-            if(msg_len_counter > 0){
-                w[i] |= (file.get() << 8);
-                msg_len_counter--;
-            } else{
-                w[i] |= ('\n' << 8);
-                w[i] |= 0x80;
-                std::cout << "3" << std::endl;
-                break;
-            }
-            if(msg_len_counter > 0){
-                w[i] |= file.get();
-                msg_len_counter--;
-            } else{
-                w[i] |= '\n';
-                w[i+1] |= (0x80 << 24);
-                std::cout << "4" << std::endl;
-                break;
-            }
+                */
+        } else{
+            w[i] |= (0x0A << 24);
+            w[i] |= (0x80 << 16);
+            std::cout << "1" << std::endl;
+            break;
         }
+
+        if(msg_len_counter > 0){
+            w[i] |= (file.get() << 16);
+            msg_len_counter--;
+        } else{
+            w[i] |= (0x0A << 16);
+
+            std::bitset<32> x1(w[i]);
+            std::cout << x1 << '\n';
+            w[i] |= (0x80 << 8);
+                
+            std::cout << "2" << std::endl;
+            std::bitset<32> x(w[i]);
+            std::cout << x << '\n';
+            break;
+        }
+
+        if(msg_len_counter > 0){
+            w[i] |= (file.get() << 8);
+            msg_len_counter--;
+        } else{
+            w[i] |= (0x0A << 8);
+            w[i] |= 0x80;
+            std::cout << "3" << std::endl;
+            break;
+        }
+
+        if(msg_len_counter > 0){
+            w[i] |= file.get();
+            msg_len_counter--;
+        } else{
+            w[i] |= 0x0A;
+            w[i+1] |= (0x80 << 24);
+            std::cout << "4" << std::endl;
+            break;
+        }
+    }
         
     
 
-    
+    msg_len += 4;
+
+    // Add 0's and the msg_len
     if(msg_len % 64 <= 447){
-        //final stuff
-        std::cout << "1.1" << std::endl;
+        std::cout << "Way 1" << std::endl;
         w[14] |= (msg_len >> 32);
         w[15] |= msg_len;
         update();
-      //while(!file.eof()){}
     } else{
-        std::cout << "2.2" << std::endl;
+        std::cout << "way 2" << std::endl;
         update();
 
         for (int i = 0; i <= 15; i++){
@@ -208,38 +204,15 @@ std::string SHA256::sha256(std::string filename){
         }
         w[14] |= (msg_len >> 32);
         w[15] |= msg_len;
-        // update, final stuff
+        update();
     }
 
     
+    // Return the Hash
+    std::stringstream hash;
+    for (int i = 0; i < 8; i++){
+        hash << std::hex << h[i];
+    }
 
-
-    //maybe write new
-    /*/
-    char buf[2*32+1];
-    buf[2*32] = 0;
-    for (int i = 0; i < 32; i++)
-        sprintf(buf+i*2, "%02x", h[i]);
-    return std::string(buf);*/
-        //last chunk, needs to be <512-65 -> 1 + big endian int
-        // otherwise add 0s and go for 1 more round;
-        std::string abc;
-    for (int i = 0; i < 8; i++)
-        
-        std::cout << std::hex << h[i];
-    
-    return "v";
+    return hash.str();
 }
-
-
-/*
-int main(){
-
-    
-
-    std::string msg = "hello world fdfrhderherhedhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh";
-
-    
-
-    return 1;
-}*/
