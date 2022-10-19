@@ -10,6 +10,8 @@
 //#define DEBUG_fore___last_chunk
 #define DEBUG_w64
 #define DEBUG_compression_algo
+//#define DEBUG_h8
+//#define DEBUG_last_byte
 
 #ifdef DEBUG
 #include <bitset>
@@ -154,8 +156,8 @@ std::string SHA256::sha256(std::string filename){
                 //dbg end
                 */
         } else{
-            w[i] |= (0x0A << 24);
-            w[i] |= (0x80 << 16);
+            //w[i] |= (0x0A << 24);
+            w[i] |= (0x80 << 24);
 
             #ifdef DEBUG_fore___last_chunk
             std::cout << "Exited in round " << i << std::endl;
@@ -171,8 +173,8 @@ std::string SHA256::sha256(std::string filename){
             w[i] |= (file.get() << 16);
             msg_len_counter--;
         } else{
-            w[i] |= (0x0A << 16);
-            w[i] |= (0x80 << 8);
+            //w[i] |= (0x0A << 16);
+            w[i] |= (0x80 << 16);
 
             #ifdef DEBUG_fore___last_chunk
             std::cout << "Exited in round " << i << std::endl;
@@ -188,8 +190,8 @@ std::string SHA256::sha256(std::string filename){
             w[i] |= (file.get() << 8);
             msg_len_counter--;
         } else{
-            w[i] |= (0x0A << 8);
-            w[i] |= 0x80;
+            //w[i] |= (0x0A << 8);
+            w[i] |= (0x80 << 8);
 
             #ifdef DEBUG_fore___last_chunk
             std::cout << "Exited in round " << i << std::endl;
@@ -205,8 +207,8 @@ std::string SHA256::sha256(std::string filename){
             w[i] |= file.get();
             msg_len_counter--;
         } else{
-            w[i] |= 0x0A;
-            w[i+1] |= (0x80 << 24);
+            //w[i] |= 0x0A;
+            w[i] |= 0x80;
             
             #ifdef DEBUG_fore___last_chunk
             std::cout << "Exited in round " << i << std::endl;
@@ -224,10 +226,15 @@ std::string SHA256::sha256(std::string filename){
         std::cout << x << std::endl;
         #endif
     }
+
+    #ifdef DEBUG_last_byte
+    std::cout << "Last byte of tha file" << std::endl;
+    std::bitset<8> x123(file.get());
+    std::cout << x123 << std::endl;
+    #endif
         
     
 
-    msg_len += 1;
     // Add 0's and the msg_len
     if(msg_len % 64 <= 62){
 
@@ -275,12 +282,33 @@ std::string SHA256::sha256(std::string filename){
         update();
     }
 
+    #ifdef DEBUG_h8
+    // values are incorrect rn (19.10.22)
+    std::bitset<32> h1(h[0]);
+        std::cout << h1 << std::endl;
+    std::bitset<32> h2(h[1]);
+        std::cout << h2 << std::endl;
+    std::bitset<32> h3(h[2]);
+        std::cout << h3 << std::endl;
+    std::bitset<32> h4(h[3]);
+        std::cout << h4 << std::endl;
+    std::bitset<32> h5(h[4]);
+        std::cout << h5 << std::endl;
+    std::bitset<32> h6(h[5]);
+        std::cout << h6 << std::endl;
+    std::bitset<32> h7(h[6]);
+        std::cout << h7 << std::endl;
+    std::bitset<32> h8(h[7]);
+        std::cout << h8 << std::endl;
+    #endif
     
     // Return the Hash
     std::stringstream hash;
     for (int i = 0; i < 8; i++){
         hash << std::hex << h[i];
     }
+
+    std::cout << "\n\nHash:\n";
 
     return hash.str();
 }
