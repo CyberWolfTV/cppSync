@@ -3,9 +3,17 @@
 #include <fstream>
 #include <experimental/filesystem>
 #include <iostream>
-#include <bitset>//dbg
 
-#define DEBUG //dbg
+
+#define DEBUG
+//#define DEBUG_Padding
+//#define DEBUG_fore___last_chunk
+#define DEBUG_w64
+#define DEBUG_compression_algo
+
+#ifdef DEBUG
+#include <bitset>
+#endif
 
 namespace fs = std::experimental::filesystem;
 
@@ -97,9 +105,11 @@ std::string SHA256::sha256(std::string filename){
     unsigned long long msg_len = fs::file_size(path);
     unsigned long long msg_len_counter = msg_len;
    
-    
-    std::cout << msg_len/64 << std::endl;
-    std::cout << msg_len << std::endl;
+    #ifdef DEBUG
+    std::cout << "msg_len / 64: " << msg_len/64 << std::endl;
+    std::cout << "msg_len: " << msg_len << std::endl;
+    std::cout << "msg_len +1 % 64: " << (msg_len + 1) % 64 << std::endl;
+    #endif
 
     std::ifstream file(filename, std::ios::in | std::ios::binary);
     
@@ -119,17 +129,19 @@ std::string SHA256::sha256(std::string filename){
         update();
     }
 
+    //reset w[i]
+    for(int i = 0; i<=15; i++){
+        w[i] = 0x00000000;
+    }
+
     // Read the rest of the file and write it to the w[]
     // add 0x0A = '\n' -> for having the filehash not
     // the hash of the content
     for (int i = 0; i <= 15; i++){
-        w[i] = 0x00000000;
-
         if(msg_len_counter > 0){
             w[i] |= (file.get() << 24);
             msg_len_counter--;
                 /*
-                // dbg
                 // ifstream.peek();
                 if(file.eof()){std::cout << "where: ";}
                 char b = file.get();
@@ -144,7 +156,14 @@ std::string SHA256::sha256(std::string filename){
         } else{
             w[i] |= (0x0A << 24);
             w[i] |= (0x80 << 16);
-            std::cout << "1" << std::endl;
+
+            #ifdef DEBUG_fore___last_chunk
+            std::cout << "Exited in round " << i << std::endl;
+            std::cout << "In step 1" << std::endl;
+            std::bitset<32> x(w[i]);
+            std::cout << x << std::endl;
+            #endif
+
             break;
         }
 
@@ -153,14 +172,15 @@ std::string SHA256::sha256(std::string filename){
             msg_len_counter--;
         } else{
             w[i] |= (0x0A << 16);
-
-            std::bitset<32> x1(w[i]);
-            std::cout << x1 << '\n';
             w[i] |= (0x80 << 8);
-                
-            std::cout << "2" << std::endl;
+
+            #ifdef DEBUG_fore___last_chunk
+            std::cout << "Exited in round " << i << std::endl;
+            std::cout << "In step 2" << std::endl;
             std::bitset<32> x(w[i]);
-            std::cout << x << '\n';
+            std::cout << x << std::endl;
+            #endif
+
             break;
         }
 
@@ -170,7 +190,14 @@ std::string SHA256::sha256(std::string filename){
         } else{
             w[i] |= (0x0A << 8);
             w[i] |= 0x80;
-            std::cout << "3" << std::endl;
+
+            #ifdef DEBUG_fore___last_chunk
+            std::cout << "Exited in round " << i << std::endl;
+            std::cout << "In step 3" << std::endl;
+            std::bitset<32> x(w[i]);
+            std::cout << x << std::endl;
+            #endif
+
             break;
         }
 
@@ -180,30 +207,71 @@ std::string SHA256::sha256(std::string filename){
         } else{
             w[i] |= 0x0A;
             w[i+1] |= (0x80 << 24);
-            std::cout << "4" << std::endl;
+            
+            #ifdef DEBUG_fore___last_chunk
+            std::cout << "Exited in round " << i << std::endl;
+            std::cout << "In step 4" << std::endl;
+            std::bitset<32> x(w[i]);
+            std::cout << x << std::endl;
+            #endif
+
             break;
         }
+
+        #ifdef DEBUG_fore___last_chunk
+        std::cout << "End of the round " << i << std::endl;
+        std::bitset<32> x(w[i]);
+        std::cout << x << std::endl;
+        #endif
     }
         
     
 
-    msg_len += 4;
-
+    msg_len += 1;
     // Add 0's and the msg_len
-    if(msg_len % 64 <= 447){
-        std::cout << "Way 1" << std::endl;
-        w[14] |= (msg_len >> 32);
-        w[15] |= msg_len;
+    if(msg_len % 64 <= 62){
+
+        #ifdef DEBUG_Padding
+        std::cout << "Way 1 (msg_len % 64 <= 447), 4 was added to msg_len" << std::endl;
+        #endif
+        w[14] |= (msg_len*8 >> 32);
+        w[15] |= msg_len*8;
+
+        #ifdef DEBUG_Padding
+        std::cout << "Last chunk, (way 1)" << std::endl << "The 64bit endian thing...:" << std::endl;
+        std::bitset<64> xmsg(msg_len*8);
+        std::cout << xmsg << std::endl;
+        std::bitset<32> x2(w[14]);
+        std::cout << x2;
+        std::bitset<32> x11(w[15]);
+        std::cout << x11 << std::endl;
+        #endif
+
         update();
     } else{
-        std::cout << "way 2" << std::endl;
+        
+        #ifdef DEBUG_Padding
+        std::cout << "way 2 (msg_len % 64 > 447), 4 was added to msg_len" << std::endl;
+        #endif
+
         update();
 
         for (int i = 0; i <= 15; i++){
             w[i] &= 0x00000000;
         }
-        w[14] |= (msg_len >> 32);
-        w[15] |= msg_len;
+        w[14] |= (msg_len*8 >> 32);
+        w[15] |= msg_len*8;
+
+        #ifdef DEBUG_Padding
+        std::cout << "Last chunk, (way 1)" << std::endl << "The 64bit endian thing...:" << std::endl;
+        std::bitset<64> xmsg(msg_len*8);
+        std::cout << xmsg << std::endl;
+        std::bitset<32> x2(w[14]);
+        std::cout << x2;
+        std::bitset<32> x11(w[15]);
+        std::cout << x11 << std::endl;
+        #endif
+
         update();
     }
 
