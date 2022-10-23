@@ -3,12 +3,13 @@
 #include <fstream>
 #include <experimental/filesystem>
 #include <iostream>
+#include <iomanip>
 
 
 #define DEBUG
 //#define DEBUG_Padding
 //#define DEBUG_fore___last_chunk
-#define DEBUG_w64
+//#define DEBUG_w64
 #define DEBUG_compression_algo
 //#define DEBUG_h8
 //#define DEBUG_last_byte
@@ -36,6 +37,7 @@ void SHA256::init(){
 
 void SHA256::update(){
     // its filling all the w
+    std::cout << "w[64]:" << std::endl;
     for(short i = 16; i <= 63; i++){
         w[i] = (
                 w[i-16] + 
@@ -55,6 +57,11 @@ void SHA256::update(){
                     (w[i-2] >> 10)
                 )
             ) % 0x100000000;
+
+        #ifdef DEBUG_w64
+        std::bitset<32> x(w[i]);
+        std::cout << x << std::endl;
+        #endif
     }
     
     // compression
@@ -64,36 +71,34 @@ void SHA256::update(){
     unsigned int Temp2 = 0x00000000;
     for(int i = 0; i <= 63; i++){
         Temp1 = (wv[7] + (
-            ((wv[4] >> 6) | (w[4] << 26))  ^
-            ((wv[4] >> 11) | (w[4] << 21)) ^
-            ((wv[4] >> 25) | (w[4] << 7))
+            ((wv[4] >> 6) | (wv[4] << 26))  ^
+            ((wv[4] >> 11) | (wv[4] << 21)) ^
+            ((wv[4] >> 25) | (wv[4] << 7))
             ) + (
             //(e and f) xor ((not e) and g)
             (wv[4] & wv[5]) | ((~wv[4]) & wv[6])
             ) + k[i] + w[i]) % 0x100000000;
         
-        Temp2 = ((
-            ((wv[0] >> 2) | (w[0] << 30))  ^
-            ((wv[0] >> 13) | (w[0] << 19)) ^
-            ((wv[0] >> 22) | (w[0] << 10))
-            ) + (
-            (wv[0] & wv[1]) | (wv[0] & wv[2]) | (wv[1] & wv[2])
-            )) % 0x100000000; 
+        Temp2 = (
+            (((wv[0] >> 2) | (wv[0] << 30))  ^
+             ((wv[0] >> 13) | (wv[0] << 19)) ^
+             ((wv[0] >> 22) | (wv[0] << 10))) 
+            + ((wv[0] & wv[1]) ^ (wv[0] & wv[2]) ^ (wv[1] & wv[2]))
+            ) % 0x100000000; 
         
-
+        // abcdefgh
         wv[7] = wv[6];
         wv[6] = wv[5];
         wv[5] = wv[4];
-        wv[4] = Temp1;
+        wv[4] = (wv[3] + Temp1) % 0x100000000;
         wv[3] = wv[2];
         wv[2] = wv[1];
         wv[1] = wv[0];
         wv[0] = (Temp1 + Temp2) % 0x100000000;
+    }
 
-        for(int i = 0; i <= 7; i++){
-            h[i] += wv[i];
-        }
-        
+    for(int i = 0; i <= 7; i++){
+        h[i] = (wv[i] + h[i])  % 0x100000000;
     }
 }
 
@@ -305,7 +310,7 @@ std::string SHA256::sha256(std::string filename){
     // Return the Hash
     std::stringstream hash;
     for (int i = 0; i < 8; i++){
-        hash << std::hex << h[i];
+        hash << std::setfill('0') << std::setw(8) << std::hex << h[i];
     }
 
     std::cout << "\n\nHash:\n";
