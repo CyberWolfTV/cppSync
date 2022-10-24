@@ -4,7 +4,7 @@
 #include <fstream>
 #include <experimental/filesystem>
 
-#include "lib/myLib/MyJSON.h"
+#include "lib/myLib/MyJSON.hpp"
 
 namespace fs = std::experimental::filesystem;
 

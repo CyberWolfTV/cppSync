@@ -4,7 +4,7 @@
 #include <map>
 #include <fstream>
 
-#include "load_configs.h"
+#include "load_configs.hpp"
 
 namespace my{
     void loadconfigs(

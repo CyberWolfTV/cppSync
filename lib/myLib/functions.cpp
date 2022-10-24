@@ -121,7 +121,7 @@ std::string get_name(std::string tempname){
 bool is_inited(std::string *name){
     try{
         std::string oldpath = fs::current_path();
-        std::string newpath = oldpath + "/" + *name + "/.changes/hashes";
+        std::string newpath = oldpath + "/" + *name + "/.cppSync/hashes";
         fs::current_path(newpath);
         fs::current_path(oldpath);
         return true;

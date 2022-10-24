@@ -12,17 +12,15 @@ Include em if needed
 #include <sstream>
 */
 
-//#include "lib/sha256/sha256.h"
-#include "lib/myLib/functions.h"
-//#include "lib/myLib/MyJSON.h"
+#include "lib/myLib/functions.hpp"
 
-#include "backup.h"
-#include "compare.h"
-#include "find_duplicates.h"
-#include "help.h"
-#include "init.h"
-#include "recHashing.h"
-#include "load_configs.h"
+#include "backup.hpp"
+#include "compare.hpp"
+#include "find_duplicates.hpp"
+#include "help.hpp"
+#include "init.hpp"
+#include "recHashing.hpp"
+#include "load_configs.hpp"
 
 
 int main(int argc, char *argv[]){
@@ -181,7 +179,7 @@ int main(int argc, char *argv[]){
  *      Compiling:
  *
  *      -lstdc++fs [if idk: -lc++fs]
- *      lib/sha256/sha256.cpp
+ *      lib/myLib/sha256.cpp
  *      lib/myLib/functions.cpp 
  *      lib/myLib/MyJSON.cpp
  *      help.cpp
@@ -192,8 +190,8 @@ int main(int argc, char *argv[]){
  *      recHashing.cpp
  *      load_configs.cpp
  *
- *      g++ main.cpp backup.cp load_configs.cpp compare.cpp init.cpp find_duplicates.cpp recHashing.cpp -lstdc++fs lib/sha256/sha256.cpp lib/myLib/MyJSON.cpp lib/myLib/functions.cpp -o cppSync.out
- *      g++ main.cpp backup.cp load_configs.cpp compare.cpp init.cpp find_duplicates.cpp recHashing.cpp -lstdc++fs lib/sha256/sha256.cpp lib/myLib/MyJSON.cpp lib/myLib/functions.cpp -o ~/Clipboard/cppSync
+ *      g++ main.cpp backup.cp load_configs.cpp compare.cpp init.cpp find_duplicates.cpp recHashing.cpp -lstdc++fs lib/myLib/sha256.cpp lib/myLib/MyJSON.cpp lib/myLib/functions.cpp -o cppSync.out
+ *      g++ main.cpp backup.cp load_configs.cpp compare.cpp init.cpp find_duplicates.cpp recHashing.cpp -lstdc++fs lib/myLib/sha256.cpp lib/myLib/MyJSON.cpp lib/myLib/functions.cpp -o ~/Clipboard/cppSync
  *
- *      alias build="g++ main.cpp backup.cpp load_configs.cpp compare.cpp init.cpp find_duplicates.cpp recHashing.cpp help.cpp -lstdc++fs lib/sha256/sha256.cpp lib/myLib/MyJSON.cpp lib/myLib/functions.cpp -o ~/Clipboard/cppSync"
+ *      alias build="g++ main.cpp backup.cpp load_configs.cpp compare.cpp init.cpp find_duplicates.cpp recHashing.cpp help.cpp -lstdc++fs lib/myLib/sha256.cpp lib/myLib/MyJSON.cpp lib/myLib/functions.cpp -o ~/Clipboard/cppSync"
  */

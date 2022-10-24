@@ -1,8 +1,8 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include "MyJSON.h"
-#include "functions.h"
+#include "MyJSON.hpp"
+#include "functions.hpp"
 
 namespace my{
 // private variables
