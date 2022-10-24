@@ -6,11 +6,11 @@
 #include <iomanip>
 
 
-#define DEBUG
+//#define DEBUG
 //#define DEBUG_Padding
 //#define DEBUG_fore___last_chunk
 //#define DEBUG_w64
-#define DEBUG_compression_algo
+//#define DEBUG_compression_algo
 //#define DEBUG_h8
 //#define DEBUG_last_byte
 
@@ -37,7 +37,9 @@ void SHA256::init(){
 
 void SHA256::update(){
     // its filling all the w
+    #ifdef DEBUG
     std::cout << "w[64]:" << std::endl;
+    #endif
     for(short i = 16; i <= 63; i++){
         w[i] = (
                 w[i-16] + 
@@ -306,14 +308,32 @@ std::string SHA256::sha256(std::string filename){
     std::bitset<32> h8(h[7]);
         std::cout << h8 << std::endl;
     #endif
-    
+
     // Return the Hash
     std::stringstream hash;
     for (int i = 0; i < 8; i++){
         hash << std::setfill('0') << std::setw(8) << std::hex << h[i];
     }
 
-    std::cout << "\n\nHash:\n";
+    //std::cout << "\n\nHash:\n";
+
+    // Reset the variables...
+    h[0] = 0x6a09e667;
+    h[1] = 0xbb67ae85;
+    h[2] = 0x3c6ef372;
+    h[3] = 0xa54ff53a;
+    h[4] = 0x510e527f;
+    h[5] = 0x9b05688c;
+    h[6] = 0x1f83d9ab;
+    h[7] = 0x5be0cd19;
+    for (int i = 0; i <= 15; i++){
+        w[i] &= 0x00000000;
+    }
+    msg_len = 0;
+    msg_len_counter = 0;
+    for(int i = 0; i <= 7; i++){
+        wv[i] = 0;
+    }
 
     return hash.str();
 }
