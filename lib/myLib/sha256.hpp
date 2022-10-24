@@ -37,12 +37,6 @@ class SHA256{
     void update();
 public:
     std::string sha256(std::string filename);
-
-
-
-
-
-    
-
-    
 };
+
+std::string sha256(std::string filename);

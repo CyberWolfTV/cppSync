@@ -317,3 +317,8 @@ std::string SHA256::sha256(std::string filename){
 
     return hash.str();
 }
+
+std::string sha256(std::string filename){
+    SHA256 hashfunction;
+    return hashfunction.sha256(filename);
+}
