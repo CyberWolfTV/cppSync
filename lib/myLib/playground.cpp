@@ -3,8 +3,8 @@
 #include "sha256.hpp"
 
 int main(){
-   SHA256 test;
-   std::cout << test.sha256("test") << std::endl;
+   
+   std::cout << sha256("test") << std::endl;
 }
 /*
  *
