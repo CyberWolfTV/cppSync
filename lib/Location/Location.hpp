@@ -11,10 +11,11 @@ namespace my{
         Location(std::string arg_name, std::string arg_datetime);
 
         // methods
-        void compare();
+        void compare(); 
+        // thats the compare function which is getting user input and passing it
+        // to the real compare function (which is private)
         void find_duplicates(); // run ALWAYS after get_hashes!
         void backup();
-        void compare();
         void get_hashes();
 
         // Variables
@@ -38,7 +39,23 @@ namespace my{
         // methods
         void loadconfig();
 
+        // the "real" compare function
+        void compare(std::string source, std::string target);
+        void print_compared();
+        void get_state();
+        std::map<std::string, std::string> source_states;
+        std::map<std::string, std::string> target_states;
+
         void rec_hashing();
         bool is_in_scope();
+
+        // Variables from the compare function:
+        // (moved includes renamed...)
+        // these (from main instance) are only used for the user-compare and
+        // *maybe* when we pull changes from a backup location
+        std::vector<std::string> created, 
+        std::vector<std::string> changed, 
+        std::vector<std::string> deleted, 
+        std::map<std::string, std::string> moved,
     };
 }

@@ -11,6 +11,7 @@ namespace fs = std::experimental::filesystem;
 
 
 bool my::Location::is_in_scope(){
+    // always exclude .git & .cppSync
     return true;
 }
 
