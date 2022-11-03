@@ -6,6 +6,7 @@
 #include <fstream>
 
 void my::Location::loadconfig(){
+    std::fstream config_file;
     config_file.open(".cppSync/.config", std::ios::in);
     if (config_file.is_open()){
 

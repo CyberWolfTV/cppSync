@@ -10,7 +10,7 @@
 namespace fs = std::experimental::filesystem;
 
 
-bool my::Location::is_in_scope(){
+bool my::Location::is_in_scope(std::string dir_entry){
     // always exclude .git & .cppSync
     return true;
 }
@@ -24,7 +24,7 @@ void my::Location::rec_hashing(std::string name){
                 map_with_hashes.insert(std::pair<std::string, std::string>(dir_entry.path().string(), sha256(dir_entry.path().string())));
             }
             else if(fs::is_directory(dir_entry.path())){
-                recHashing(dir_entry.path().string());
+                rec_hashing(dir_entry.path().string());
             }
         }
     }

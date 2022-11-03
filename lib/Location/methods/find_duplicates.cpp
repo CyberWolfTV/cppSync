@@ -15,7 +15,7 @@ void my::Location::find_duplicates(){
     std::string recent_hashes = ".cppSync/hashes/" + datetime;
     std::ifstream input_file(recent_hashes);
     if (!input_file.is_open()) {
-        std::cerr << "could not open file " << file_and_path << std::endl;;
+        std::cerr << "could not open file " << recent_hashes << std::endl;;
         exit(EXIT_FAILURE);
     }
 

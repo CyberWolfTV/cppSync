@@ -22,7 +22,7 @@ void my::Location::get_state(std::string source_location, std::string target_loc
     auto stringstream = std::ostringstream{};
     std::ifstream input_file(source_location);
     if (!input_file.is_open()) {
-        std::cerr << "could not open file " << choice << std::endl;;
+        std::cerr << "could not open file " << source_location << std::endl;;
         exit(EXIT_FAILURE);
     }
     stringstream << input_file.rdbuf();
@@ -34,7 +34,7 @@ void my::Location::get_state(std::string source_location, std::string target_loc
     auto stringstream2 = std::ostringstream{};
     std::ifstream input_file2(target_location);
     if (!input_file.is_open()) {
-        std::cerr << "could not open file " << choice << std::endl;;
+        std::cerr << "could not open file " << target_location << std::endl;;
         exit(EXIT_FAILURE);
     }
     stringstream2 << input_file.rdbuf();
@@ -61,6 +61,9 @@ void my::Location::compare(std::string source, std::string target){
     // source -> from main instance (newer one)
     // target -> from backup locations (older one)
     get_state(source, target);
+
+    std::map<std::string, std::string> moved_deleted;
+    std::map<std::string, std::string> moved_created;
 
 
 
@@ -92,8 +95,8 @@ void my::Location::compare(std::string source, std::string target){
     std::string hash1;
     std::string hash2;
     for(auto i = all_paths.begin(); i != all_paths.end(); i++){
-        hash1 = NULL;
-        hash2 = NULL;
+        hash1 = "";
+        hash2 = "";
 
         auto entry1 = target_states.find(i->first);
         auto entry2 = source_states.find(i->first);
@@ -117,10 +120,10 @@ void my::Location::compare(std::string source, std::string target){
             moved_created[i->first] = entry2->second;
         }
         else if(hash2 == ""){
-            moved_deleted[i->first] = Choice1[i->first];
+            moved_deleted[i->first] = source_states[i->first];
         }
         else if(hash1 != hash2){
-            changed->push_back(i->first);
+            changed.push_back(i->first);
             target_states.erase(i->first);
             source_states.erase(i->first);
         }
@@ -142,12 +145,12 @@ void my::Location::compare(std::string source, std::string target){
             if(i1->second == checksum){
                 found = true;
                 // file got moved
-                moved->operator[](i->first) = i1->first;
+                moved[i->first] = i1->first;
             }
         }
         if(!found){
             std::cout << "HI if" << std::endl;
-            created->push_back(i->first);
+            created.push_back(i->first);
         } else{
             std::cout << "HI else" << std::endl;
             found = false;
@@ -161,11 +164,11 @@ void my::Location::compare(std::string source, std::string target){
             if(i1->second == checksum){
                 found = true;
                 // file got moved
-                moved->operator[](i1->first) = i->first;
+                moved[i1->first] = i->first;
             }
         }
         if(!found){
-            deleted->push_back(i->first);
+            deleted.push_back(i->first);
         } else{
             found = false;
         }
@@ -174,19 +177,19 @@ void my::Location::compare(std::string source, std::string target){
 
 
 
-void print_compared(){
+void my::Location::print_compared(){
      // Print results
     std::fstream output_file;
-    std::string filename = *name + "/.cppSync/what_changed/" + *datetime;
+    std::string filename = ".cppSync/what_changed/" + datetime;
     output_file.open(filename,std::ios::out);
 
     std::cout << "These Files have been created:" << std::endl;
     output_file << "These Files have been created:" << std::endl;
-    if(created->empty()){
+    if(created.empty()){
         std::cout << "No Files have been created." << std::endl;
         output_file << "No Files have been created." << std::endl;
     } else{
-        for(auto i = created->begin(); i != created->end(); i++){
+        for(auto i = created.begin(); i != created.end(); i++){
             std::cout << *i << std::endl;
             output_file << *i << std::endl;
         }
@@ -196,11 +199,11 @@ void print_compared(){
 
     std::cout << "These Files have been changed:" << std::endl;
     output_file << "These Files have been changed:" << std::endl;
-    if(created->empty()){
+    if(created.empty()){
         std::cout << "No Files have been changed." << std::endl;
         output_file << "No Files have been changed." << std::endl;
     } else{
-        for(auto i = changed->begin(); i != changed->end(); i++){
+        for(auto i = changed.begin(); i != changed.end(); i++){
             std::cout << *i << std::endl;
             output_file << *i << std::endl;
         }
@@ -210,7 +213,7 @@ void print_compared(){
 
     std::cout << "These Files have been deleted:" << std::endl;
     output_file << "These Files have been deleted:" << std::endl;
-    for(auto i = deleted->begin(); i != deleted->end(); i++){
+    for(auto i = deleted.begin(); i != deleted.end(); i++){
         std::cout << *i << std::endl;
         output_file << *i << std::endl;
     }
@@ -219,7 +222,7 @@ void print_compared(){
 
     std::cout << "These Files have been moved:" << std::endl;
     output_file << "These Files have been moved:" << std::endl;
-    for(auto i = moved->begin(); i != moved->end(); i++){
+    for(auto i = moved.begin(); i != moved.end(); i++){
         std::cout << "from " << i->second <<  "\n    -> " << i->first << std::endl;
         output_file << "from " << i->second <<  "\n    -> " << i->first << std::endl;
     }
@@ -229,8 +232,13 @@ void my::Location::compare(){
     // TODO
     // choose two states to compare:
     // which location, which date
-
+    std::string source;
+    std::string target;
+    
     // TODO
     // print out absolute paths
+
+
+    compare(source, target);
 }
 

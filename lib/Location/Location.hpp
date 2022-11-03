@@ -42,20 +42,20 @@ namespace my{
         // the "real" compare function
         void compare(std::string source, std::string target);
         void print_compared();
-        void get_state();
+        void get_state(std::string source_location, std::string target_location);
         std::map<std::string, std::string> source_states;
         std::map<std::string, std::string> target_states;
 
-        void rec_hashing();
-        bool is_in_scope();
+        void rec_hashing(std::string name);
+        bool is_in_scope(std::string dir_entry);
 
         // Variables from the compare function:
         // (moved includes renamed...)
         // these (from main instance) are only used for the user-compare and
         // *maybe* when we pull changes from a backup location
-        std::vector<std::string> created, 
-        std::vector<std::string> changed, 
-        std::vector<std::string> deleted, 
-        std::map<std::string, std::string> moved,
+        std::vector<std::string> created;
+        std::vector<std::string> changed; 
+        std::vector<std::string> deleted; 
+        std::map<std::string, std::string> moved;
     };
 }
