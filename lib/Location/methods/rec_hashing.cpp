@@ -11,7 +11,7 @@ namespace fs = std::experimental::filesystem;
 
 
 bool my::Location::is_in_scope(std::string dir_entry){
-    // always exclude .git & .cppSync
+    // always exclude .cppSync
     return true;
 }
 
@@ -31,11 +31,17 @@ void my::Location::rec_hashing(std::string name){
 }
 
 void my::Location::get_hashes(){
-    my::MyJSON json_hashes;
-
+    // actual hashing
     rec_hashing(".");
 
-    // write json stuff to file
+    // write json stuff to file (ordered ...)
+    my::MyJSON json_hashes;
+    for(auto i = map_with_hashes.begin(); i != map_with_hashes.end(); i++){
+        json_hashes.addpair(i->first, i->second);
+    }
 
-    // TODO iterate through created map, dont just dump em above!
+    std::string path = ".cppSync/hashes/" + datetime;
+    std::ofstream FileWithHashes(path);
+    FileWithHashes << json_hashes.get() << std::endl;
+    FileWithHashes.close();
 }

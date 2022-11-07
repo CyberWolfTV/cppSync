@@ -1,59 +1,30 @@
 #include <string>
-#include <vector>
 #include <iostream>
 #include <map>
 #include <cstring>
 
-/*
-Include em if needed
-#include <stdio.h>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-*/
-
+#include "lib/Location/Location.hpp"
 #include "lib/myLib/functions.hpp"
-
-#include "backup.hpp"
-#include "compare.hpp"
-#include "find_duplicates.hpp"
 #include "help.hpp"
 #include "init.hpp"
-#include "recHashing.hpp"
-#include "load_configs.hpp"
 
 
 int main(int argc, char *argv[]){
     // Variables
     std::string datetime = my::currentDateTime();
     std::string name;
-    std::map<std::string, std::string> MapOfHashes; // check if its needed, maybe use it in get_hashes only
-
-    // config variables
-    std::vector<std::string> backup_locations;
-    int old_versions;
-    bool whitelist_or_blacklist;
-    std::vector<std::string> list;
-
-    // what changed (pass to compare & backup)
-    std::vector<std::string> created;
-    std::vector<std::string> changed;
-    std::vector<std::string> deleted;
-    std::map<std::string, std::string> moved; // map<newPath, oldPath> moved;
-
-    // map for args
-    std::map<std::string, int> options;
+    std::map<std::string, bool> options;
 
     
     // ARGS
-    options["compare"] = 0;
-    options["init"] = 0;
-    options["backup"] = 0;
-    options["find-duplicates"] = 0;
-    options["hash"] = 0;
-    options["configure"] = 0;
-    options["no-questions"] = 0;
-    options["compare-default"] = 0;
+    options["compare"] = false;
+    options["init"] = false;
+    options["backup"] = false;
+    options["find-duplicates"] = false;
+    options["hash"] = false;
+    options["configure"] = false;
+    options["no-questions"] = false;
+    options["compare-default"] = false;
     
 
     for(int i = 1; i < argc; i++){
@@ -61,91 +32,109 @@ int main(int argc, char *argv[]){
         std::string argument = argv[i];
         
         if(argument == "-c" || argument == "--compare"){
-            options["compare"] = 1;
+            options["compare"] = true;
 
         }
         else if(argument == "-cd" || argument == "--compare-default"){
-            options["compare"] = 1;
-            options["compare-default"] = 1;
+            options["compare"] = true;
+            options["compare-default"] = true;
         }
         else if(argument == "-h" || argument == "--help"){
             my::help();
         }
         else if(argument == "-i" || argument == "--init"){
-            options["init"] = 1;
+            options["init"] = true;
         }
         else if(argument == "-nq" || argument == "--no-questions"){
             // TODO make the script running in other scripts)
-            options["no-questions"] = 1;
-            options["compare-default"] = 1;
+            options["no-questions"] = true;
+            options["compare-default"] = true;
         }
         else if(argument == "-b" || argument == "--backup"){
             // TODO write backup function(-s)
-            options["backup"] = 1;
+            options["backup"] = true;
         }
         else if(argument == "-fd" || argument == "--find-duplicates"){
             // TODO write function(-s)
-            options["find-duplicates"] = 1;
+            options["find-duplicates"] = true;
         }
         else if(argument == "--hash"){
             // TODO write function(-s)
-            options["hash"] = 1;
+            options["hash"] = true;
         }
         else if(argument == "--configure"){
             // TODO write function(-s)
-            options["configure"] = 1;
+            options["configure"] = true;
         }
         else{
             name = argument;
         }
     }
     
+    /*
+     * Configs etc.
+     */
     // verify directory exists, if not -> ask for the correct 1
     name = my::get_name(name);
-    
-
     // init should be first!
-    if(options["init"] == 1){
+    if(options["init"]){
         my::init(&name);
     }
-
     // verify directory was inited
     if(!my::is_inited(&name)){
         std::cout << "This directory was not inited, run the same command and add --init." << std::endl;
         exit(EXIT_FAILURE);
     }
-
-
     // configure
-    if(options["configure"] == 1){
+    if(options["configure"]){
         std::string command = "vim \"" + name + "/.cppSync/.config\"";
         const char * c = command.c_str();
         std::system(c);
     }
 
 
-    // parse config file
-    my::loadconfigs(&name, &backup_locations, &old_versions, &whitelist_or_blacklist, &list);
-    
+    /*
+     * Im creating a Location Object, this one is the main instance.
+     * That means this will be the original Folder u want to backup.
+     * We are calling the methods of the instance here, they will 
+     * call methods of the backup locations.
+     */
+
+    // if we the user only used the options which are executed by
+    // the functions above, we can exit here.
+    if(
+       !options["compare"]
+       && !options["backup"]
+       && !options["find-duplicates"]
+       && !options["hash"]
+       && !options["compare-default"]
+    ){
+        return 0;
+    }
+
+
+    my::Location main_instance(name, datetime, options);
+
     // Hashing the Directory $name
-    if(options["hash"] == 1 || options["compare"] == 1 || options["find-duplicates"] == 1){
-        my::get_hashes(&name, &datetime, &MapOfHashes);
+    if(options["hash"] || options["find-duplicates"]){
+        main_instance.get_hashes();
     }
 
-    // find duplicates
-    if(options["find-duplicates"] == 1){
-        my::find_duplicates(&name, &datetime);
+    if(options["find-duplicates"]){
+        main_instance.find_duplicates();
     }
 
-    // compare
+    if(options["compare"]){
+        main_instance.compare();
+    }
+
+    if(options["backup"]){
+        main_instance.backup();
+    }
     
-    if(options["compare"] == 1){
-        my::compare(&options, &name, &datetime, &created, &changed, &deleted, &moved);
-    }
-    
 
 
-
+/*
     // backup
     if(options["backup"] == 1 && options["compare-default"] == 1){
         //pass the what changes variables to backup function
@@ -169,7 +158,7 @@ int main(int argc, char *argv[]){
         my::compare(&options, &name, &datetime, &alt_created, &alt_changed, &alt_deleted, &alt_moved);
         // my::backup(all_alt_what_changed_vars);
     }
-
+*/
     return 0;
 }
 
@@ -178,20 +167,27 @@ int main(int argc, char *argv[]){
 /*
  *      Compiling:
  *
- *      -lstdc++fs [if idk: -lc++fs]
- *      lib/myLib/sha256.cpp
- *      lib/myLib/functions.cpp 
- *      lib/myLib/MyJSON.cpp
- *      help.cpp
- *      backup.cpp
- *      compare.cpp
- *      init.cpp
- *      find_duplicates.cpp
- *      recHashing.cpp
- *      load_configs.cpp
+ *      Main-Function:
+ *          main.cpp      
+ *      Flags for the compiler:
+ *          -lstdc++fs [if idk: -lc++fs] -> filesystem iirc
+ *      Location and methods:
+ *          lib/Location/Location.cpp
+ *          lib/Location/methods/backup.cpp
+ *          lib/Location/methods/compare.cpp
+ *          lib/Location/methods/find_duplicates.cpp
+ *          lib/Location/methods/rec_hashing.cpp
+ *          lib/Location/methods/loadconfig.cpp
+ *      Other functions:
+ *          lib/myLib/sha256.cpp
+ *          lib/myLib/functions.cpp 
+ *          lib/myLib/MyJSON.cpp
+ *          help.cpp
+ *          init.cpp
+ *      
  *
- *      g++ main.cpp backup.cp load_configs.cpp compare.cpp init.cpp find_duplicates.cpp recHashing.cpp -lstdc++fs lib/myLib/sha256.cpp lib/myLib/MyJSON.cpp lib/myLib/functions.cpp -o cppSync.out
- *      g++ main.cpp backup.cp load_configs.cpp compare.cpp init.cpp find_duplicates.cpp recHashing.cpp -lstdc++fs lib/myLib/sha256.cpp lib/myLib/MyJSON.cpp lib/myLib/functions.cpp -o ~/Clipboard/cppSync
+ *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp  -o cppSync.out
+ *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp -o ~/Clipboard/cppSync
  *
- *      alias build="g++ main.cpp backup.cpp load_configs.cpp compare.cpp init.cpp find_duplicates.cpp recHashing.cpp help.cpp -lstdc++fs lib/myLib/sha256.cpp lib/myLib/MyJSON.cpp lib/myLib/functions.cpp -o ~/Clipboard/cppSync"
+ *      alias build="g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp -o ~/Clipboard/cppSync"
  */

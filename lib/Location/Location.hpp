@@ -8,7 +8,10 @@ namespace my{
     class Location{
     public:
         // Constructors:
-        Location(std::string arg_name, std::string arg_datetime);
+        Location(std::string arg_name,
+                 std::string arg_datetime,
+                 std::map<std::string, bool> arg_options
+                 );
 
         // methods
         void compare(); 
@@ -57,5 +60,8 @@ namespace my{
         std::vector<std::string> changed; 
         std::vector<std::string> deleted; 
         std::map<std::string, std::string> moved;
+
+        // options from main
+        std::map<std::string, bool> options;
     };
 }
