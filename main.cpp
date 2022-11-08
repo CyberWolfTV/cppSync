@@ -2,11 +2,14 @@
 #include <iostream>
 #include <map>
 #include <cstring>
+#include <experimantal/filesystem>
 
 #include "lib/Location/Location.hpp"
 #include "lib/myLib/functions.hpp"
 #include "help.hpp"
 #include "init.hpp"
+
+namespace fs = std::experimental::filesystem;
 
 
 int main(int argc, char *argv[]){
@@ -112,11 +115,11 @@ int main(int argc, char *argv[]){
         return 0;
     }
 
-
+    name = fs::current_path + "/" + name;
     my::Location main_instance(name, datetime, options);
 
     // Hashing the Directory $name
-    if(options["hash"] || options["find-duplicates"]){
+    if(options["hash"] || options["find-duplicates"] || options["restore"]){
         main_instance.get_hashes();
     }
 
@@ -178,6 +181,7 @@ int main(int argc, char *argv[]){
  *          lib/Location/methods/find_duplicates.cpp
  *          lib/Location/methods/rec_hashing.cpp
  *          lib/Location/methods/loadconfig.cpp
+ *          lib/Location/methods/restore.cpp
  *      Other functions:
  *          lib/myLib/sha256.cpp
  *          lib/myLib/functions.cpp 
@@ -186,8 +190,8 @@ int main(int argc, char *argv[]){
  *          init.cpp
  *      
  *
- *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp  -o cppSync.out
- *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp -o ~/Clipboard/cppSync
+ *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp  -o cppSync.out
+ *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp -o ~/Clipboard/cppSync
  *
- *      alias build="g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp -o ~/Clipboard/cppSync"
+ *      alias build="g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp -o ~/Clipboard/cppSync"
  */

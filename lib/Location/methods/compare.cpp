@@ -9,12 +9,17 @@
 
 namespace fs = std::experimental::filesystem;
 
+int my::choice(int i){
+    std::string test_choice;
+    std::cin >> test_choice;
+    int choice = atoi(test_choice);
+    if(choice > i+1 || choice < 0){
+        return my::choice(i);
+    } else{
+        return choice;
+    }
+}
 
-/* 
- * TODO:
- * Pointers to class variables
- * Check logic
- */
 
 
 // when writing a good json parser make the func. return a map -> half code here
@@ -49,15 +54,11 @@ void my::Location::get_state(std::string source_location, std::string target_loc
 /* doc:
  * when in backup func call it on the object with specification of
  * the source & target
- *
- *
- *
- *
  */
 
 // for backup call the functions via the specific Location object
 void my::Location::compare(std::string source, std::string target){
-    // source and target are the absolute paths to the state
+    // source and target are the absolute paths to the state!
     // source -> from main instance (newer one)
     // target -> from backup locations (older one)
     get_state(source, target);
@@ -102,9 +103,6 @@ void my::Location::compare(std::string source, std::string target){
         auto entry2 = source_states.find(i->first);
         
         std::cout << i->first << std::endl;
-        //std::cout << entry1->second << std::endl;
-        //std::cout << entry2->second << std::endl << std::endl;
-
         try{
             hash1 = entry1->second;
         } catch (std::bad_alloc &ba){/*This path dont exist in Choice1*/}
@@ -176,7 +174,7 @@ void my::Location::compare(std::string source, std::string target){
 }
 
 
-
+// includes output to file
 void my::Location::print_compared(){
      // Print results
     std::fstream output_file;
@@ -229,15 +227,24 @@ void my::Location::print_compared(){
 }
 
 void my::Location::compare(){
-    // TODO
-    // choose two states to compare:
-    // which location, which date
-    std::string source;
-    std::string target;
+    // choose states
+    std::cout << "Which state do u want to compare?" << std::endl;
+    std::cout << "First state (usually the older one): "
     
-    // TODO
-    // print out absolute paths
+    int files_len;
+    for(fs::directory_iterator i{".cppSync/hashes"}; i != end; i++){ // maybe ++i???
+        std::string filename = i->path().string();
+        filename.erase(0,2);
+        std::cout << "[" << files_len << "] " << filename << std::endl;
+        files[files_len] = filename;
+        files_len++;
+    }
+    int choice_target = my::choice(files_len);
+    std::cout "\nSecond state (usually the newer one): "
+    int choice_source = my::choice(files_len);
 
+    std::string target = name + "/.cppSync/hashes/" + files[choice_target];
+    std::string source = name + "/.cppSync/hashes/" + files[choice_source];
 
     compare(source, target);
 }
