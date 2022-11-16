@@ -2,7 +2,7 @@
 #include <iostream>
 #include <map>
 #include <cstring>
-#include <experimantal/filesystem>
+#include <experimental/filesystem>
 
 #include "lib/Location/Location.hpp"
 #include "lib/myLib/functions.hpp"
@@ -115,7 +115,8 @@ int main(int argc, char *argv[]){
         return 0;
     }
 
-    name = fs::current_path + "/" + name;
+    std::string current_path = fs::current_path();
+    name = current_path + "/" + name;
     my::Location main_instance(name, datetime, options);
 
     // Hashing the Directory $name
