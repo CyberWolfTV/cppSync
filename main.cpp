@@ -79,12 +79,17 @@ int main(int argc, char *argv[]){
      */
     // verify directory exists, if not -> ask for the correct 1
     name = my::get_name(name);
+
+    // cd into name
+    fs::current_path(fs::current_path().string() + "/" + name);
+    //std::cout << fs::current_path().string();
+
     // init should be first!
     if(options["init"]){
         my::init(&name);
     }
     // verify directory was inited
-    if(!my::is_inited(&name)){
+    if(!my::is_inited()){
         std::cout << "This directory was not inited, run the same command and add --init." << std::endl;
         exit(EXIT_FAILURE);
     }

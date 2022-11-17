@@ -1,4 +1,5 @@
 #include "Location.hpp"
+#include <iostream>
 
 my::Location::Location(std::string arg_name,
                        std::string arg_datetime,

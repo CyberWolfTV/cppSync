@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 
+
 void my::Location::loadconfig(){
     std::fstream config_file;
     config_file.open(".cppSync/.config", std::ios::in);
@@ -19,7 +20,7 @@ void my::Location::loadconfig(){
                 
                 line.erase(0, 9);
                 // create an object with constructor
-                backup_locations.push_back(Location(line, datetime));
+                backup_locations.push_back(Location(line, datetime, options));
             }
             else if(line[5] == 't'){
                 if(line[10] == 'b'){

@@ -1,6 +1,6 @@
 #include "../Location.hpp"
-#include "../../lib/myLib/MyJSON.hpp"
-#include "../../lib/myLib/sha256.hpp"
+#include "../../myLib/MyJSON.hpp"
+#include "../../myLib/sha256.hpp"
 
 #include <map>
 #include <experimental/filesystem>

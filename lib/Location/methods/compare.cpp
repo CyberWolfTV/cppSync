@@ -1,6 +1,7 @@
 #include "../Location.hpp"
-#include "../../lib/myLib/MyJSON.hpp"
+#include "../../myLib/MyJSON.hpp"
 
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <map>
@@ -8,22 +9,28 @@
 #include <experimental/filesystem>
 
 namespace fs = std::experimental::filesystem;
+using recursive_directory_iterator = fs::recursive_directory_iterator;
 
-int my::choice(int i){
-    std::string test_choice;
-    std::cin >> test_choice;
-    int choice = atoi(test_choice);
-    if(choice > i+1 || choice < 0){
-        return my::choice(i);
-    } else{
-        return choice;
+namespace my{
+    int choice(int i){
+        std::string test_choice;
+        std::cin >> test_choice;
+        int choice = atoi(test_choice.c_str());
+        if(choice > i+1 || choice < 0){
+            return my::choice(i);
+        } else{
+            return choice;
+        }
     }
 }
 
 
-
 // when writing a good json parser make the func. return a map -> half code here
 void my::Location::get_state(std::string source_location, std::string target_location){
+    std::string oldpath = fs::current_path();
+    std::string newpath = oldpath + "/.cppSync/hashes";
+    fs::current_path(newpath);
+
     auto stringstream = std::ostringstream{};
     std::ifstream input_file(source_location);
     if (!input_file.is_open()) {
@@ -38,7 +45,7 @@ void my::Location::get_state(std::string source_location, std::string target_loc
 
     auto stringstream2 = std::ostringstream{};
     std::ifstream input_file2(target_location);
-    if (!input_file.is_open()) {
+    if (!input_file2.is_open()) {
         std::cerr << "could not open file " << target_location << std::endl;;
         exit(EXIT_FAILURE);
     }
@@ -47,6 +54,8 @@ void my::Location::get_state(std::string source_location, std::string target_loc
     json_of_choice = stringstream2.str();
     importJsonObject_to_map(json_of_choice, &target_states);
     input_file.close();
+
+    fs::current_path(oldpath);
     return;
 }
 
@@ -66,8 +75,6 @@ void my::Location::compare(std::string source, std::string target){
     std::map<std::string, std::string> moved_deleted;
     std::map<std::string, std::string> moved_created;
 
-
-
     // Lets create a map with all paths, so we can take a look on how they changed
     std::map<std::string, int> all_paths;
     for(auto i = target_states.begin(); i != target_states.end(); i++){
@@ -79,9 +86,6 @@ void my::Location::compare(std::string source, std::string target){
         //std::cout << i->first << std::endl;
         //std::cout << i->second << std::endl;
     }
-    std::cout << "all_paths.size() = " << all_paths.size() << std::endl;
-
-
 
     /*
      *  In the following for-loop the paths will be sorted in different vectors/maps.
@@ -147,10 +151,8 @@ void my::Location::compare(std::string source, std::string target){
             }
         }
         if(!found){
-            std::cout << "HI if" << std::endl;
             created.push_back(i->first);
         } else{
-            std::cout << "HI else" << std::endl;
             found = false;
         }
     }
@@ -171,6 +173,7 @@ void my::Location::compare(std::string source, std::string target){
             found = false;
         }
     }
+    print_compared();
 }
 
 
@@ -229,23 +232,23 @@ void my::Location::print_compared(){
 void my::Location::compare(){
     // choose states
     std::cout << "Which state do u want to compare?" << std::endl;
-    std::cout << "First state (usually the older one): "
+    std::cout << "First state (usually the older one): " << std::endl;
     
-    int files_len;
-    for(fs::directory_iterator i{".cppSync/hashes"}; i != end; i++){ // maybe ++i???
-        std::string filename = i->path().string();
-        filename.erase(0,2);
-        std::cout << "[" << files_len << "] " << filename << std::endl;
+    int files_len = 0;
+    std::map<int, std::string> files;
+    for(const auto& i : recursive_directory_iterator(".cppSync/hashes/")){
+        std::string filename = i.path().string();
+        std::cout << "[" << files_len << "] " << filename.erase(0, 16) << std::endl;
         files[files_len] = filename;
         files_len++;
     }
+    
     int choice_target = my::choice(files_len);
-    std::cout "\nSecond state (usually the newer one): "
+    std::cout << "\nSecond state (usually the newer one): " << std::endl;
     int choice_source = my::choice(files_len);
 
-    std::string target = name + "/.cppSync/hashes/" + files[choice_target];
-    std::string source = name + "/.cppSync/hashes/" + files[choice_source];
+    std::string target = files[choice_target];
+    std::string source = files[choice_source];
 
     compare(source, target);
 }
-
