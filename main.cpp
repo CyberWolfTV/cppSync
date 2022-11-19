@@ -1,10 +1,7 @@
 #include "lib/Location/Location.hpp"
-#include "lib/myLib/functions.hpp"
+#include "lib/functions.hpp"
 
-#include <string>
 #include <iostream>
-#include <map>
-#include <cstring>
 #include <experimental/filesystem>
 
 namespace fs = std::experimental::filesystem;
@@ -151,16 +148,15 @@ int main(int argc, char *argv[]){
  *          lib/Location/methods/restore.cpp
  *          lib/Location/methods/get_choice.cpp
  *          lib/Location/methods/get_state.cpp
+ *          lib/Location/methods/init.cpp
  *      Other functions:
- *          lib/myLib/sha256.cpp
- *          lib/myLib/functions.cpp 
- *          lib/myLib/MyJSON.cpp
- *          help.cpp
- *          init.cpp
- *      
+ *          lib/sha256.cpp
+ *          lib/functions.cpp 
+ *          lib/json.cpp
+ *          
  *
- *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/Location/methods/get_choice.cpp lib/Location/methods/get_state.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp  -o cppSync.out
- *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/Location/methods/get_choice.cpp lib/Location/methods/get_state.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp -o ~/Clipboard/cppSync
+ *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/Location/methods/get_choice.cpp lib/Location/methods/init.cpp lib/Location/methods/get_state.cpp lib/sha256.cpp lib/functions.cpp lib/jsonN.cpp  -o cppSync.out
+ *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/Location/methods/get_choice.cpp lib/Location/methods/init.cpp lib/Location/methods/get_state.cpp lib/sha256.cpp lib/functions.cpp lib/json.cpp -o ~/Clipboard/cppSync
  *
- *      alias build="g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/Location/methods/get_choice.cpp lib/Location/methods/get_state.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp -o ~/Clipboard/cppSync"
+ *      alias build="g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/Location/methods/get_choice.cpp lib/Location/methods/get_state.cpp lib/Location/methods/init.cpp lib/sha256.cpp lib/functions.cpp lib/json.cpp -o ~/Clipboard/cppSync"
  */

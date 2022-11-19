@@ -11,8 +11,8 @@ namespace fs = std::experimental::filesystem;
 void my::Location::compare(std::string source, std::string target){
     // source -> from main instance (newer one)
     // target -> from backup locations (older one)
-    std::map<std::string, std::string> source_states = get_state(".cppSync/hashes", source);
-    std::map<std::string, std::string> target_states = get_state(".cppSync/hashes", target);
+    std::map<std::string, std::string> source_states = get_state(source);
+    std::map<std::string, std::string> target_states = get_state(target);
 
     std::map<std::string, std::string> moved_deleted;
     std::map<std::string, std::string> moved_created;
@@ -176,10 +176,10 @@ void my::Location::compare(){
     // choose states
     std::cout << "Which state do u want to compare?" << std::endl;
     std::cout << "First state (usually the older one): " << std::endl;
-    std::string target = get_choice();
+    std::string target = ".cppSync/hashes/" + get_choice();
     
     std::cout << "\nSecond state (usually the newer one): " << std::endl;
-    std::string source = get_choice();
+    std::string source = ".cppSync/hashes/" + get_choice();
 
     compare(source, target);
 }

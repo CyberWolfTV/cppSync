@@ -1,13 +1,9 @@
-#include <string>
-#include <map>
-#include <iostream>
 #include "json.hpp"
 #include "functions.hpp"
 
 namespace my{
 // private variables
 std::string json_object;
-int i2 = 0;
 
 // public functions
 
@@ -76,52 +72,40 @@ std::multimap<std::string, std::string> importJsonObject_to_multimap(std::string
         }
         return myMap;
     }
+}
 
 
+std::map<std::string, std::string> my::json_to_map(std::string json){
+    std::string string, key, value;
+    std::map<std::string, std::string> map;
 
-    void importJsonObject_to_map(std::string str, std::map<std::string, std::string> *map){
-        std::string path;
-        std::string checksum;
+    bool still_string;
+    bool is_key = false;
 
-        for (auto i = 0; i < str.length(); i++){
-            path = "";
-            checksum = "";
-            if(str[i] == '"'){
-                i++;
-                // get path
-                for (int i2 = i; i2 < str.length();i2++){
-                    if (str[i2] != '"'){
-                    path += str[i2];
-                    } else {
-                        i2 = str.length();
-                    }  
+    for(long long i = 0; i < json.length(); i++){
+        if(json[i] == '"'){
+            i++;
+            still_string = true;
+            string = "";
+            while(still_string){
+                if(json[i] == '"'){
+                    still_string = false;
+                    is_key = ~is_key;
+                    i += string.length() + 1;
+                }else{
+                    string += json[i];
                 }
-                i += 4;
-                i += path.length();
-                
-                //get value
-                for (int i2 = i; i2 < str.length(); i2++){
+            }
 
-                    if (str[i2] != '"'){
-                    checksum += str[i2];
-                    }
-                    else {
-                        i2 ++;
-
-                        if(str[i2] == '}'){
-                            i = str.length();
-                        }
-                        i2++;
-                        i2 = str.length();
-                    }
-                }
-                i++;
-                i += checksum.length();
-                
-                //put stuff into map
-                map->operator[](decode(path)) = checksum;
+            if(is_key){
+                key = string;
+            } else{
+                value = string;
+                map[decode(key)] = decode(value);
+                key = "";
+                value = "";
             }
         }
-        return;
     }
+    return map;
 }

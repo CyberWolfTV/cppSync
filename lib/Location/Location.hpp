@@ -42,18 +42,24 @@ namespace my{
          * depend on the location_type
          */
 
+        void loadconfig();
+        /*
+         * This functions parses the .config file.
+         * -> output: backup_locations, old_versions,
+         *            white_or_blacklist, list
+         * -> gets called once in the constructor
+         */
+
+
         void compare();
         /*
          * This function will be called when the user wants to compare
          * smth., for supplying the backup function we use the private 
-         * function compare which takes the target and source state as
-         * argument, (this function does also call the private one 
+         * function "compare" (this function does also call the private one 
          * after it got the states the user wants to compare)
          *
          * TLDR; this function passes the users choice to the real compare
          * function
-         *
-         * PS: does not require recent hashes, can run without rec_hashing
          */ 
         
         void find_duplicates(); // run ALWAYS after get_hashes!
@@ -86,7 +92,7 @@ namespace my{
         std::string name;
         // name of the parent directory
         // or the absolute path, lets go with the absolute path..
-        static std::string DATETIME;
+        
         std::vector<my::Location> backup_locations;
 
         // config variables
@@ -98,40 +104,46 @@ namespace my{
         std::vector<std::string> list; 
 
     private:
-        void loadconfig();
+    // static Variables:
+        static std::string DATETIME;
+        static std::map<std::string, bool> OPTIONS;
         /*
-         * This functions parses the .config file.
-         * -> output: backup_locations, old_versions,
-         *            white_or_blacklist, list
-         * -> gets called once in the constructor
+         * Options (ARGS) from main.cpp, passed through constructor
+         * of the main instance.
          */
 
+    // methods
         void rec_hashing(std::string name);
+        /*
+         * The function which actually hashes the directories
+         * recursivly.
+         */
         bool is_in_scope(std::string dir_entry);
+
 
         // the "real" compare function
         void compare(std::string source, std::string target);
-        std::map<std::string, std::string> source_states;
-        std::map<std::string, std::string> target_states;
-        // Variables from the compare function:
-        // (moved includes renamed...)
-        // these (from main instance) are only used for the user-compare and
-        // *maybe* when we pull changes from a backup location
+        /*
+         * The compare function get two paths to two states.
+         * Paths can be relative or absolute.
+         * It will fill up the vectors down below with the specific paths.
+         */
         std::vector<std::string> created;
         std::vector<std::string> changed; 
         std::vector<std::string> deleted; 
         std::map<std::string, std::string> moved;
+        /*
+         * These variables (from main instance) are only used for the 
+         * user-compare and *maybe* when we pull changes from a backup location.
+         * - moved includes renamed...
+         */
         void print_compared();  // prints changes + writes em to file
 
-        static std::map<std::string, bool> OPTIONS;
-        /*
-         * Options from main.cpp, passed through constructor 
-         */
 
-        std::map<std::string, std::string> get_state(std::string path, std::string file_name);
+        std::map<std::string, std::string> get_state(std::string path);
         /*
-         * takes path to states [/.../.cppSync/hashes], should work with relativ paths too
-         * and the name of the file u want to load [without '/']
+         * takes path to states [/.../.cppSync/hashes/STATE],
+         * should work with relativ paths too
          * 
          * returns the state as map (not multimap)
          */

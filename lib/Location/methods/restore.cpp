@@ -1,6 +1,3 @@
-// TODO -> everything
-
-
 #include "../Location.hpp"
 /* 
  * flow:
@@ -18,4 +15,4 @@
  * 
  */
 
- void restore(){}
+ void my::Location::restore(){}

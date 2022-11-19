@@ -8,24 +8,18 @@
 namespace fs = std::experimental::filesystem;
 
 
-std::map<std::string, std::string> my::Location::get_state(std::string path, std::string file_name){
-    std::string oldpath = fs::current_path();
-    fs::current_path(path);
-
-    auto stringstream = std::ostringstream{};
-    std::ifstream input_file(file_name);
+std::map<std::string, std::string> my::Location::get_state(std::string path){
+    std::fstream input_file(path);
+    input_file.open("path", std::ios::out);
     if (!input_file.is_open()) {
-        std::cerr << "could not open file " << path + "/" + file_name << std::endl;;
+        std::cerr << "could not open file " << path << std::endl;
+        std::cerr << "[In: " << fs::current_path() << "]" << std::endl;
         exit(EXIT_FAILURE);
     }
+    auto stringstream = std::ostringstream{};
     stringstream << input_file.rdbuf();
-    std::string json_of_choice = stringstream.str();
+    std::string json = stringstream.str();
     input_file.close();
 
-    fs::current_path(oldpath);
-
-    // #TODO rewrite json-parser -> return map directly
-    std::map<std::string, std::string> map;
-    importJsonObject_to_map(json_of_choice, &map);
-    return map;
+    return json_to_map(json);
 }

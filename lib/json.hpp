@@ -2,13 +2,13 @@
 
 #include <string>
 #include <map>
-#include <iostream>
+
 
 namespace my{
+// create json
     class MyJSON{
     private:
         std::string json_object;
-        int i2;
         
     public:
     // creating json object
@@ -18,7 +18,19 @@ namespace my{
         std::string get();
     };
 
-    // functions for importing JSON
-    void importJsonObject_to_map(std::string str, std::map<std::string, std::string> *map);
+
+// import json
     std::multimap<std::string, std::string> importJsonObject_to_multimap(std::string str);
+    std::map<std::string, std::string> json_to_map(std::string json);
+    /*
+     * Takes json string, return map.
+     * Keys have to be unique!
+     * Correct:
+     *      "key":"value"
+     * Wrong:
+     *      'key':'value'
+     *      key:'value'
+     *      'key':value
+     *      ...
+     */
 }

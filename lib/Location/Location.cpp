@@ -1,5 +1,5 @@
 #include "Location.hpp"
-#include "../myLib/functions.hpp"
+#include "../functions.hpp"
 
 #include <iostream>
 #include <vector>
