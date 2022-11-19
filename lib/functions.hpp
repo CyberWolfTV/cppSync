@@ -6,10 +6,6 @@
 namespace my{
     std::string currentDateTime(); // returns datetime
 
-    std::string encode(std::string str);
-    std::string decode(std::string str);
-    // kinda url-en-/decoding for json
-
     bool ask(std::string question);
     // question? [y/n] -> returns true / false
 
