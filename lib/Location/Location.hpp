@@ -93,7 +93,6 @@ namespace my{
 
         // the "real" compare function
         void compare(std::string source, std::string target);
-        void get_state(std::string source_location, std::string target_location);
         std::map<std::string, std::string> source_states;
         std::map<std::string, std::string> target_states;
         // Variables from the compare function:
@@ -104,11 +103,26 @@ namespace my{
         std::vector<std::string> changed; 
         std::vector<std::string> deleted; 
         std::map<std::string, std::string> moved;
-        void print_compared();
+        void print_compared();  // prints changes + writes em to file
 
         std::map<std::string, bool> options;
         /*
          * Options from main.cpp, passed through constructor 
+         */
+
+        std::map<std::string, std::string> get_state(std::string path, std::string file_name);
+        /*
+         * takes path to states [/.../.cppSync/hashes], should work with relativ paths too
+         * and the name of the file u want to load [without '/']
+         * 
+         * returns the state as map (not multimap)
+         */
+
+        std::string get_choice();
+        /*
+         * prints all names of the files in .cppSync/hashes/
+         * asks which file the user wants
+         * returns name of the file [without path to it]
          */
     };
 }

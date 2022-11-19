@@ -1,76 +1,18 @@
 #include "../Location.hpp"
-#include "../../myLib/MyJSON.hpp"
 
-#include <cstring>
 #include <iostream>
-#include <string>
-#include <map>
 #include <fstream>
 #include <experimental/filesystem>
 
 namespace fs = std::experimental::filesystem;
-using recursive_directory_iterator = fs::recursive_directory_iterator;
-
-namespace my{
-    int choice(int i){
-        std::string test_choice;
-        std::cin >> test_choice;
-        int choice = atoi(test_choice.c_str());
-        if(choice > i+1 || choice < 0){
-            return my::choice(i);
-        } else{
-            return choice;
-        }
-    }
-}
 
 
-// when writing a good json parser make the func. return a map -> half code here
-void my::Location::get_state(std::string source_location, std::string target_location){
-    std::string oldpath = fs::current_path();
-    std::string newpath = oldpath + "/.cppSync/hashes";
-    fs::current_path(newpath);
-
-    auto stringstream = std::ostringstream{};
-    std::ifstream input_file(source_location);
-    if (!input_file.is_open()) {
-        std::cerr << "could not open file " << source_location << std::endl;;
-        exit(EXIT_FAILURE);
-    }
-    stringstream << input_file.rdbuf();
-
-    std::string json_of_choice = stringstream.str();
-    importJsonObject_to_map(json_of_choice, &source_states);
-    input_file.close();
-
-    auto stringstream2 = std::ostringstream{};
-    std::ifstream input_file2(target_location);
-    if (!input_file2.is_open()) {
-        std::cerr << "could not open file " << target_location << std::endl;;
-        exit(EXIT_FAILURE);
-    }
-    stringstream2 << input_file.rdbuf();
-
-    json_of_choice = stringstream2.str();
-    importJsonObject_to_map(json_of_choice, &target_states);
-    input_file.close();
-
-    fs::current_path(oldpath);
-    return;
-}
-
-
-/* doc:
- * when in backup func call it on the object with specification of
- * the source & target
- */
-
-// for backup call the functions via the specific Location object
+// the backup function calls this method directly
 void my::Location::compare(std::string source, std::string target){
-    // source and target are the absolute paths to the state!
     // source -> from main instance (newer one)
     // target -> from backup locations (older one)
-    get_state(source, target);
+    std::map<std::string, std::string> source_states = get_state(".cppSync/hashes", source);
+    std::map<std::string, std::string> target_states = get_state(".cppSync/hashes", target);
 
     std::map<std::string, std::string> moved_deleted;
     std::map<std::string, std::string> moved_created;
@@ -229,26 +171,15 @@ void my::Location::print_compared(){
     }
 }
 
+
 void my::Location::compare(){
     // choose states
     std::cout << "Which state do u want to compare?" << std::endl;
     std::cout << "First state (usually the older one): " << std::endl;
+    std::string target = get_choice();
     
-    int files_len = 0;
-    std::map<int, std::string> files;
-    for(const auto& i : recursive_directory_iterator(".cppSync/hashes/")){
-        std::string filename = i.path().string();
-        std::cout << "[" << files_len << "] " << filename.erase(0, 16) << std::endl;
-        files[files_len] = filename;
-        files_len++;
-    }
-    
-    int choice_target = my::choice(files_len);
     std::cout << "\nSecond state (usually the newer one): " << std::endl;
-    int choice_source = my::choice(files_len);
-
-    std::string target = files[choice_target];
-    std::string source = files[choice_source];
+    std::string source = get_choice();
 
     compare(source, target);
 }
