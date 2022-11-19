@@ -1,27 +1,22 @@
+#include "lib/Location/Location.hpp"
+#include "lib/myLib/functions.hpp"
+
 #include <string>
 #include <iostream>
 #include <map>
 #include <cstring>
 #include <experimental/filesystem>
 
-#include "lib/Location/Location.hpp"
-#include "lib/myLib/functions.hpp"
-#include "help.hpp"
-#include "init.hpp"
-
 namespace fs = std::experimental::filesystem;
 
 
 int main(int argc, char *argv[]){
-    // Variables
-    std::string datetime = my::currentDateTime();
     std::string name;
     std::map<std::string, bool> options;
 
     
     // ARGS
     options["compare"] = false;
-    options["init"] = false;
     options["backup"] = false;
     options["find-duplicates"] = false;
     options["hash"] = false;
@@ -31,7 +26,6 @@ int main(int argc, char *argv[]){
     
 
     for(int i = 1; i < argc; i++){
-
         std::string argument = argv[i];
         
         if(argument == "-c" || argument == "--compare"){
@@ -44,9 +38,6 @@ int main(int argc, char *argv[]){
         }
         else if(argument == "-h" || argument == "--help"){
             my::help();
-        }
-        else if(argument == "-i" || argument == "--init"){
-            options["init"] = true;
         }
         else if(argument == "-nq" || argument == "--no-questions"){
             // TODO make the script running in other scripts)
@@ -74,31 +65,15 @@ int main(int argc, char *argv[]){
         }
     }
     
-    /*
-     * Configs etc.
-     */
     // verify directory exists, if not -> ask for the correct 1
     name = my::get_name(name);
+    name = fs::current_path().string() + "/" + name;
 
     // cd into name
-    fs::current_path(fs::current_path().string() + "/" + name);
-    //std::cout << fs::current_path().string();
+    fs::current_path(name);
 
-    // init should be first!
-    if(options["init"]){
-        my::init(&name);
-    }
-    // verify directory was inited
-    if(!my::is_inited()){
-        std::cout << "This directory was not inited, run the same command and add --init." << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    // configure
-    if(options["configure"]){
-        std::string command = "vim \"" + name + "/.cppSync/.config\"";
-        const char * c = command.c_str();
-        std::system(c);
-    }
+    
+
 
 
     /*
@@ -108,21 +83,7 @@ int main(int argc, char *argv[]){
      * call methods of the backup locations.
      */
 
-    // if we the user only used the options which are executed by
-    // the functions above, we can exit here.
-    if(
-       !options["compare"]
-       && !options["backup"]
-       && !options["find-duplicates"]
-       && !options["hash"]
-       && !options["compare-default"]
-    ){
-        return 0;
-    }
-
-    std::string current_path = fs::current_path();
-    name = current_path + "/" + name;
-    my::Location main_instance(name, datetime, options);
+    my::Location main_instance(name, options);
 
     // Hashing the Directory $name
     if(options["hash"] || options["find-duplicates"] || options["restore"]){
@@ -188,6 +149,8 @@ int main(int argc, char *argv[]){
  *          lib/Location/methods/rec_hashing.cpp
  *          lib/Location/methods/loadconfig.cpp
  *          lib/Location/methods/restore.cpp
+ *          lib/Location/methods/get_choice.cpp
+ *          lib/Location/methods/get_state.cpp
  *      Other functions:
  *          lib/myLib/sha256.cpp
  *          lib/myLib/functions.cpp 
@@ -196,8 +159,8 @@ int main(int argc, char *argv[]){
  *          init.cpp
  *      
  *
- *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp  -o cppSync.out
- *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp -o ~/Clipboard/cppSync
+ *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/Location/methods/get_choice.cpp lib/Location/methods/get_state.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp  -o cppSync.out
+ *      g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/Location/methods/get_choice.cpp lib/Location/methods/get_state.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp -o ~/Clipboard/cppSync
  *
- *      alias build="g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp -o ~/Clipboard/cppSync"
+ *      alias build="g++ main.cpp -lstdc++fs lib/Location/Location.cpp lib/Location/methods/backup.cpp lib/Location/methods/compare.cpp lib/Location/methods/find_duplicates.cpp lib/Location/methods/rec_hashing.cpp lib/Location/methods/loadconfig.cpp lib/Location/methods/restore.cpp lib/Location/methods/get_choice.cpp lib/Location/methods/get_state.cpp lib/myLib/sha256.cpp lib/myLib/functions.cpp lib/myLib/MyJSON.cpp help.cpp init.cpp -o ~/Clipboard/cppSync"
  */

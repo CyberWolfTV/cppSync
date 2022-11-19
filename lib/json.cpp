@@ -1,7 +1,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include "MyJSON.hpp"
+#include "json.hpp"
 #include "functions.hpp"
 
 namespace my{

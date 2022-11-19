@@ -1,5 +1,5 @@
 #include "../Location.hpp"
-#include "../../myLib/MyJSON.hpp"
+#include "../../json.hpp"
 
 #include <string>
 #include <iostream>
@@ -12,7 +12,7 @@ namespace fs = std::experimental::filesystem;
 void my::Location::find_duplicates(){
     auto stringstream = std::ostringstream{};
 
-    std::string recent_hashes = ".cppSync/hashes/" + datetime;
+    std::string recent_hashes = ".cppSync/hashes/" + DATETIME;
     std::ifstream input_file(recent_hashes);
     if (!input_file.is_open()) {
         std::cerr << "could not open file " << recent_hashes << std::endl;;
@@ -24,7 +24,7 @@ void my::Location::find_duplicates(){
 
     std::multimap<std::string, std::string> map_of_hashes = importJsonObject_to_multimap(newest_hashes);
 
-    std::string result_file = ".cppSync/dulplicates/" + datetime;
+    std::string result_file = ".cppSync/dulplicates/" + DATETIME;
     std::ofstream duplicates(result_file);
 
     duplicates << "# Every path of a block points towards a duplicate file\n" << std::endl;

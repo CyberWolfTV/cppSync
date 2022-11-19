@@ -1,5 +1,5 @@
 #include "../Location.hpp"
-#include "../../myLib/MyJSON.hpp"
+#include "../../json.hpp"
 
 #include <iostream>
 #include <fstream>

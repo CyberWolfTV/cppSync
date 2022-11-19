@@ -9,22 +9,39 @@ namespace my{
     public:
     // Constructors:
         Location(std::string arg_name,
-                 std::string arg_datetime,
                  std::map<std::string, bool> arg_options
                  );
         /* 
-         * This is the standard constructor. 
+         * This is the Constructor for the main instance. 
          * It takes the following parameter
-         *  name
+         *  arg_name
          *  -> absolute path to the parent dir of .cppSync
-         *  datetime
-         *  -> datetime for all instances is defined in main.cpp
-         *     as the time when starting the program
-         *  options
+         *  arg_options
          *  -> this is the map with args created in main.cpp
-         */ 
+         * 
+         * It will set DATETIME, it will also execute the functions
+         * specified by the OPTIONS.
+         * It will load the configs of the config file.
+         */
+
+        Location(std::string arg_name);
+        /*
+         * This is the Constructor for the backup locations.
+         * arg_name
+         *  -> absolute path to the parent dir of .cppSync
+         * 
+         * It will load the configs of the config file.
+         */
 
     // Methods:
+        void init();
+        /*
+         * creates directories + config file
+         *
+         * content of the config file will (probably)
+         * depend on the location_type
+         */
+
         void compare();
         /*
          * This function will be called when the user wants to compare
@@ -69,11 +86,12 @@ namespace my{
         std::string name;
         // name of the parent directory
         // or the absolute path, lets go with the absolute path..
-        std::string datetime;
+        static std::string DATETIME;
         std::vector<my::Location> backup_locations;
 
         // config variables
-        bool location_type; // maybe remove #TODO
+        std::string location_type; 
+        // main or backup, used in init function
         int old_versions;
         // How many .bakXXX files should get saved
         bool whitelist_or_blacklist;
@@ -105,7 +123,7 @@ namespace my{
         std::map<std::string, std::string> moved;
         void print_compared();  // prints changes + writes em to file
 
-        std::map<std::string, bool> options;
+        static std::map<std::string, bool> OPTIONS;
         /*
          * Options from main.cpp, passed through constructor 
          */

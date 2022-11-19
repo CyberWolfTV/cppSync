@@ -1,6 +1,6 @@
 #include "../Location.hpp"
-#include "../../myLib/MyJSON.hpp"
-#include "../../myLib/sha256.hpp"
+#include "../../json.hpp"
+#include "../../sha256.hpp"
 
 #include <map>
 #include <experimental/filesystem>
@@ -40,7 +40,7 @@ void my::Location::get_hashes(){
         json_hashes.addpair(i->first, i->second);
     }
 
-    std::string path = ".cppSync/hashes/" + datetime;
+    std::string path = ".cppSync/hashes/" + DATETIME;
     std::ofstream FileWithHashes(path);
     FileWithHashes << json_hashes.get() << std::endl;
     FileWithHashes.close();

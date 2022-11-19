@@ -20,7 +20,7 @@ void my::Location::loadconfig(){
                 
                 line.erase(0, 9);
                 // create an object with constructor
-                backup_locations.push_back(Location(line, datetime, options));
+                backup_locations.push_back(Location(line));
             }
             else if(line[5] == 't'){
                 if(line[10] == 'b'){
