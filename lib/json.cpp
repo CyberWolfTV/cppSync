@@ -1,78 +1,22 @@
 #include "json.hpp"
 #include "functions.hpp"
 
-namespace my{
-// private variables
-std::string json_object;
 
-// public functions
-
-void MyJSON::addpair(std::string path, std::string checksum){
+void my::MyJSON::addpair(std::string key, std::string value){
     json_object += "\"";
-    json_object += encode(path);
+    json_object += encode(key);
     json_object += "\": \"";
-    json_object += checksum;
+    json_object += value;
     json_object += "\", ";
+    return;
 }
 
-std::string MyJSON::get(){
+std::string my::MyJSON::get(){
     json_object.erase(json_object.size() -2);
     json_object = '{' + json_object + '}';
     return json_object;
 }
 
-
-std::multimap<std::string, std::string> importJsonObject_to_multimap(std::string str){
-
-    std::string key;
-    std::string value;
-    std::multimap<std::string, std::string> myMap;
-
-    for (auto i = 0; i < str.length(); i++){
-
-        std::string key = "";
-        std::string value = "";
-        
-        if(str[i] == '"'){
-            i++;
-            // get key
-            for (int i2 = i; i2 < str.length();i2++){
-                if (str[i2] != '"'){
-                key += str[i2];
-                } else {
-                    i2 = str.length();
-                }  
-            }
-            i += 4;
-            i += key.length();
-            
-            //get value
-            for (int i2 = i; i2 < str.length(); i2++){
-
-                if (str[i2] != '"'){
-                value += str[i2];
-                }
-                else {
-                    i2 ++;
-
-                    if(str[i2] == '}'){
-                        i = str.length();
-                    }
-                    i2++;
-                    i2 = str.length();
-                }
-            }
-            i++;
-            i += value.length();
-            
-
-            //put stuff into map
-            myMap.insert(std::pair<std::string, std::string>(value, decode(key)));
-            }
-        }
-        return myMap;
-    }
-}
 
 
 std::map<std::string, std::string> my::json_to_map(std::string json){
@@ -101,7 +45,7 @@ std::map<std::string, std::string> my::json_to_map(std::string json){
                 key = string;
             } else{
                 value = string;
-                map[decode(key)] = decode(value);
+                map.insert(std::pair<std::string, std::string>(decode(key), value));
                 key = "";
                 value = "";
             }

@@ -122,7 +122,7 @@ namespace my{
 
 
         // the "real" compare function
-        void compare(std::string source, std::string target);
+        void compare(std::string source, std::string target, bool output);
         /*
          * The compare function get two paths to two states.
          * Paths can be relative or absolute.
@@ -131,14 +131,13 @@ namespace my{
         std::vector<std::string> created;
         std::vector<std::string> changed; 
         std::vector<std::string> deleted; 
-        std::map<std::string, std::string> moved;
+        std::map<std::string, std::string> moved; // moved[old] = new
         /*
          * These variables (from main instance) are only used for the 
          * user-compare and *maybe* when we pull changes from a backup location.
          * - moved includes renamed...
          */
         void print_compared();  // prints changes + writes em to file
-
 
         std::map<std::string, std::string> get_state(std::string path);
         /*

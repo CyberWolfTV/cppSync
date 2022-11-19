@@ -8,65 +8,57 @@ namespace fs = std::experimental::filesystem;
 
 
 // the backup function calls this method directly
-void my::Location::compare(std::string source, std::string target){
+void my::Location::compare(std::string source, std::string target, bool output){
     // source -> from main instance (newer one)
     // target -> from backup locations (older one)
     std::map<std::string, std::string> source_states = get_state(source);
     std::map<std::string, std::string> target_states = get_state(target);
 
-    std::map<std::string, std::string> moved_deleted;
-    std::map<std::string, std::string> moved_created;
-
-    // Lets create a map with all paths, so we can take a look on how they changed
-    std::map<std::string, int> all_paths;
+    // Lets create a map with all paths, so we can take a look on how
+    // they changed.
+    std::map<std::string, bool> all_paths;
     for(auto i = target_states.begin(); i != target_states.end(); i++){
-        all_paths[i->first] = 1;
-        //std::cerr << "\n\n\n" << i->first << "\n\n\n";
+        all_paths[i->first] = true;
     }
     for(auto i = source_states.begin(); i != source_states.end(); i++){
-        all_paths[i->first] = 1;
-        //std::cout << i->first << std::endl;
-        //std::cout << i->second << std::endl;
+        all_paths[i->first] = true;
     }
 
     /*
-     *  In the following for-loop the paths will be sorted in different vectors/maps.
-     *  If a file got created the path wont be included in map "Choice1", if it got deleted it wont be in "Choice2".
-     *  If a file got moved the new path wont be in "Choice1" and the old one wont be in "Choice2".
-     *  
-     *  Creating entry1 and entry2 wont cause any problems even if the path does not exist in the map,
-     *  but when accessing it through "entry1(/2)->second" it will lead to a crash.
-     *  -> so i created the to strings in try-catch statements to avoid seg.-faults.
+     * In the following for-loop the paths will be sorted in different vectors/maps.
+     * Algorithmen explained:
+     * changed [vector]:
+     *  1. Both maps have a hash for a given part.
+     *  2. These hashes differ.
+     *
+     * moved_created [map]:
+     *  1. The newer state (source) has a hash for the given path.
+     *  2. The older state (target) does not have a hash for the given path.
+     *
+     * moved_deleted [map]:
+     *  1. The older state (target) has a hash for the given path.
+     *  2. The newer state (source) does not have a hash for the given path.
      */
+    std::string target_hash;
+    std::string source_hash;
+    std::map<std::string, std::string> moved_deleted;
+    std::map<std::string, std::string> moved_created;
 
-    std::string hash1;
-    std::string hash2;
     for(auto i = all_paths.begin(); i != all_paths.end(); i++){
-        hash1 = "";
-        hash2 = "";
-
-        auto entry1 = target_states.find(i->first);
-        auto entry2 = source_states.find(i->first);
+        target_hash = target_states[i->first];
+        source_hash = source_states[i->first];
         
-        std::cout << i->first << std::endl;
-        try{
-            hash1 = entry1->second;
-        } catch (std::bad_alloc &ba){/*This path dont exist in Choice1*/}
-        try{
-            hash2 = entry2->second;
-        } catch (std::bad_alloc &ba){/*This path dont exist in Choice2*/}
-            
-        if(hash1 == hash2){
+        if(target_hash == source_hash){
             target_states.erase(i->first);
             source_states.erase(i->first);
         }
-        else if(hash1 == ""){
-            moved_created[i->first] = entry2->second;
+        else if(target_hash == ""){
+            moved_created[i->first] = source_hash;
         }
-        else if(hash2 == ""){
-            moved_deleted[i->first] = source_states[i->first];
+        else if(source_hash == ""){
+            moved_deleted[i->first] = target_hash;
         }
-        else if(hash1 != hash2){
+        else if(target_hash != source_hash){
             changed.push_back(i->first);
             target_states.erase(i->first);
             source_states.erase(i->first);
@@ -76,46 +68,40 @@ void my::Location::compare(std::string source, std::string target){
         }
     }
 
-    // bool found for determinging wether to push it into the created vector
+
     bool found = false;
-        
-    //std::cout << "moved_created.size() = " << moved_created.size() << std::endl;
-    // moved_created
+    typedef std::multimap<std::string, std::string>::iterator multimap_iterator;
+    
     for(auto i = moved_created.begin(); i != moved_created.end(); i++){
-        // if checksum is in Choice1 file got move, else created
-        std::string checksum = i->second;
-        std::cout << checksum << std::endl;
-        for(auto i1 = target_states.begin(); i1 != target_states.end(); i1++){
-            if(i1->second == checksum){
+        for(auto j = target_states.begin(); j != target_states.end(); i++){
+            if(i->second == j->second){
+                moved[j->first] = i->first;
                 found = true;
-                // file got moved
-                moved[i->first] = i1->first;
             }
         }
         if(!found){
             created.push_back(i->first);
-        } else{
-            found = false;
         }
+        found = false;
     }
 
     for(auto i = moved_deleted.begin(); i != moved_deleted.end(); i++){
-        // if checksum is in Choice2 file got move, else created
-        std::string checksum = i->second;
-        for(auto i1 = source_states.begin(); i1 != source_states.end(); i1++){
-            if(i1->second == checksum){
+        for(auto j = source_states.begin(); j != source_states.end(); i++){
+            if(i->second == j->second){
+                moved[i->first] = j->first;
                 found = true;
-                // file got moved
-                moved[i1->first] = i->first;
             }
         }
         if(!found){
             deleted.push_back(i->first);
-        } else{
-            found = false;
         }
+        found = false;
+    }  
+
+    if(output){
+        print_compared();
     }
-    print_compared();
+    return;
 }
 
 
@@ -169,6 +155,7 @@ void my::Location::print_compared(){
         std::cout << "from " << i->second <<  "\n    -> " << i->first << std::endl;
         output_file << "from " << i->second <<  "\n    -> " << i->first << std::endl;
     }
+    return;
 }
 
 
@@ -181,5 +168,6 @@ void my::Location::compare(){
     std::cout << "\nSecond state (usually the newer one): " << std::endl;
     std::string source = ".cppSync/hashes/" + get_choice();
 
-    compare(source, target);
+    compare(source, target, true);
+    return;
 }
