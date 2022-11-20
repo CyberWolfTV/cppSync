@@ -107,9 +107,9 @@ void my::Location::compare(std::string source, std::string target, bool output){
 
 // includes output to file
 void my::Location::print_compared(){
-     // Print results
+    // Print results
     std::fstream output_file;
-    std::string filename = ".cppSync/what_changed/" + DATETIME;
+    std::string filename = ".cppSync/what_changed/" + datetime;
     output_file.open(filename,std::ios::out);
 
     std::cout << "These Files have been created:" << std::endl;

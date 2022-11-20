@@ -80,5 +80,6 @@ std::multimap<std::string, std::string> my::reverse_map(std::map<std::string, st
     std::multimap<std::string, std::string> multimap;
     for(auto i = map->begin(); i != map->end(); i++){
         multimap.insert(std::pair<std::string, std::string>(i->second, i->first));
-    } 
+    }
+    return multimap;
 }

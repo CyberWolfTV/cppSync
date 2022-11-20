@@ -12,7 +12,7 @@ namespace fs = std::experimental::filesystem;
 void my::Location::find_duplicates(){
     std::multimap<std::string, std::string> map_of_hashes = reverse_map(&map_with_hashes);
 
-    std::string result_file = ".cppSync/dulplicates/" + DATETIME;
+    std::string result_file = ".cppSync/dulplicates/" + datetime;
     std::ofstream duplicates(result_file);
 
     duplicates << "# Every path of a block points towards a duplicate file\n" << std::endl;

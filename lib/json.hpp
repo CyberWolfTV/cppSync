@@ -5,6 +5,11 @@
 
 
 namespace my{
+// encoding / decoding
+    std::string encode(std::string str);
+    std::string decode(std::string str);
+    // kinda url-en-/decoding for json
+    
 // create json
     class MyJSON{
     private:
@@ -29,9 +34,4 @@ namespace my{
      *      'key': value
      *      ...
      */
-
-// encoding / decoding
-    std::string encode(std::string str);
-    std::string decode(std::string str);
-    // kinda url-en-/decoding for json
 }

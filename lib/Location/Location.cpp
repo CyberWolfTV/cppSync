@@ -8,8 +8,8 @@
  * Constructor for the main instance:
  */
 my::Location::Location(std::string arg_name, std::map<std::string, bool> arg_options){
-    DATETIME = my::currentDateTime();
-    OPTIONS = arg_options;
+    datetime = my::currentDateTime();
+    options = arg_options;
 
     name = arg_name;
     location_type = "main";
@@ -27,7 +27,7 @@ my::Location::Location(std::string arg_name, std::map<std::string, bool> arg_opt
     loadconfig();
 
     // configure
-    if(OPTIONS["configure"]){
+    if(options["configure"]){
         for(int i = 0; i < backup_locations.size(); i++){
             std::cout << "[" << std::to_string(i) << "] " << backup_locations[i].name << std::endl;
         }
@@ -50,9 +50,10 @@ my::Location::Location(std::string arg_name, std::map<std::string, bool> arg_opt
 /*
  * Constructor for the backup locations:
  */
-my::Location::Location(std::string arg_name){
+my::Location::Location(std::string arg_name, std::string arg_datetime){
     name = arg_name;
     location_type = "backup";
+    datetime = arg_datetime;
 
     // init
     if(!my::is_inited()){

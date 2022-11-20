@@ -24,13 +24,21 @@ namespace my{
          * It will load the configs of the config file.
          */
 
-        Location(std::string arg_name);
+        Location(std::string arg_name, std::string arg_datetime);
         /*
          * This is the Constructor for the backup locations.
          * arg_name
          *  -> absolute path to the parent dir of .cppSync
          * 
          * It will load the configs of the config file.
+         */
+    
+    // pseudo static Variables:
+        std::string datetime;
+        std::map<std::string, bool> options;
+        /*
+         * Options (ARGS) from main.cpp, passed through constructor
+         * of the main instance.
          */
 
     // Methods:
@@ -102,16 +110,8 @@ namespace my{
         // How many .bakXXX files should get saved
         bool whitelist_or_blacklist;
         std::vector<std::string> list; 
-
+        
     private:
-    // static Variables:
-        static std::string DATETIME;
-        static std::map<std::string, bool> OPTIONS;
-        /*
-         * Options (ARGS) from main.cpp, passed through constructor
-         * of the main instance.
-         */
-
     // methods
         void rec_hashing(std::string name);
         /*
@@ -154,4 +154,7 @@ namespace my{
          * returns name of the file [without path to it]
          */
     };
+
+//std::string Location::datetime;
+//std::map<std::string, bool> Location::options;
 }

@@ -38,7 +38,7 @@ void my::Location::get_hashes(){
         json_hashes.addpair(i->first, i->second);
     }
 
-    std::string path = ".cppSync/hashes/" + DATETIME;
+    std::string path = ".cppSync/hashes/" + datetime;
     std::ofstream FileWithHashes(path);
     FileWithHashes << json_hashes.get() << std::endl;
     FileWithHashes.close();

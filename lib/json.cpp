@@ -1,6 +1,102 @@
 #include "json.hpp"
 
 
+std::string my::encode(std::string str){
+    std::string encodedString;
+    
+    for (int i = 0; i < str.length(); i++){
+        switch(str[i]){
+            case(':'):
+                encodedString += "%A";
+                break;
+            case('\\'):
+                encodedString += "%B";
+                break;
+            case(','):
+                encodedString += "%C";
+                break;
+            case('"'):
+                encodedString += "%D";
+                break;
+            case('{'):
+                encodedString += "%E";
+                break;
+            case('}'):
+                encodedString += "%F";
+                break;
+            case('%'):
+                encodedString += "%G";
+                break;
+            case(' '):
+                encodedString += "%H";
+                break;
+            case('+'):
+                encodedString += "%I";
+                break;
+            case('['):
+                encodedString += "%J";
+                break;
+            case(']'):
+                encodedString += "%K";
+                break;
+            default:
+                encodedString += str[i];
+        }
+    }
+    return encodedString;
+ }
+
+
+ std::string my::decode(std::string str){
+    std::string decodedString;
+    
+    for (int i = 0; i < str.length(); i++){
+        if (str[i] == '%'){
+            i++;
+            switch(str[i]){
+                case('A'):
+                    decodedString += ':';
+                    break;
+                case('B'):
+                    decodedString += '\\';
+                    break;
+                case('C'):
+                    decodedString += ',';
+                    break;
+                case('D'):
+                    decodedString += '"';
+                    break;
+                case('E'):
+                    decodedString += '{';
+                    break;
+                case('F'):
+                    decodedString += '}';
+                    break;
+                case('G'):
+                    decodedString += '%';
+                    break;
+                case('H'):
+                    decodedString += ' ';
+                    break;
+                case('I'):
+                    decodedString += '+';
+                    break;
+                case('J'):
+                    decodedString += '[';
+                    break;
+                case('K'):
+                    decodedString += ']';
+                    break;
+            }
+            i++;
+        }else {
+            decodedString += str[i];
+        }
+    }
+    return decodedString;
+}
+
+
 void my::MyJSON::addpair(std::string key, std::string value){
     json_object += "\"";
     json_object += encode(key);
@@ -51,100 +147,4 @@ std::map<std::string, std::string> my::json_to_map(std::string json){
         }
     }
     return map;
-}
-
-
-std::string my::encode(std::string str){
-    std::string encodedString;
-    
-    for (int i = 0; i < str.length(); i++){
-        switch(str[i]){
-            case(':'):
-                encodedString += "%A";
-                break;
-            case('\\'):
-                encodedString += "%B";
-                break;
-            case(','):
-                encodedString += "%C";
-                break;
-            case('"'):
-                encodedString += "%D";
-                break;
-            case('{'):
-                encodedString += "%E";
-                break;
-            case('}'):
-                encodedString += "%F";
-                break;
-            case('%'):
-                encodedString += "%G";
-                break;
-            case(' '):
-                encodedString += "%H";
-                break;
-            case('+'):
-                encodedString += "%I";
-                break;
-            case('['):
-                encodedString += "%J";
-                break;
-            case(']'):
-                encodedString += "%K";
-                break;
-            default:
-                encodedString += str[i];
-        }
-    }
-    return encodedString;
- }
-
-
- std::string decode(std::string str){
-    std::string decodedString;
-    
-    for (int i = 0; i < str.length(); i++){
-        if (str[i] == '%'){
-            i++;
-            switch(str[i]){
-                case('A'):
-                    decodedString += ':';
-                    break;
-                case('B'):
-                    decodedString += '\\';
-                    break;
-                case('C'):
-                    decodedString += ',';
-                    break;
-                case('D'):
-                    decodedString += '"';
-                    break;
-                case('E'):
-                    decodedString += '{';
-                    break;
-                case('F'):
-                    decodedString += '}';
-                    break;
-                case('G'):
-                    decodedString += '%';
-                    break;
-                case('H'):
-                    decodedString += ' ';
-                    break;
-                case('I'):
-                    decodedString += '+';
-                    break;
-                case('J'):
-                    decodedString += '[';
-                    break;
-                case('K'):
-                    decodedString += ']';
-                    break;
-            }
-            i++;
-        }else {
-            decodedString += str[i];
-        }
-    }
-    return decodedString;
 }
