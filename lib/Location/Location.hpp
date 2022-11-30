@@ -153,8 +153,48 @@ namespace my{
          * asks which file the user wants
          * returns name of the file [without path to it]
          */
-    };
 
-//std::string Location::datetime;
-//std::map<std::string, bool> Location::options;
+
+        void get_dir_structure();
+        /*
+         * Will create the dir_strcutre variable, will only
+         * include what is in whitelist / is not in blacklist.
+         * -> Backup function and can ersase unneeded entries
+         *    from the hashmap.
+         */
+        std::vector<std::vector<std::pair<std::string, bool>>> dir_structure; 
+        /*
+         * Complicated structure:
+         *   Example Directorystructure:
+         *     Documents
+         *       |-Private
+         *       |-Bank
+         *       | '-Password.txt
+         *       '-other_stuff
+         *         |-Passwords
+         *         | |-MyPasswords.kdbx
+         *         | '-Password_for_MyPasswords.kdbx.txt
+         *         '-secret.kdbx
+         *   Explained:
+         *     Bool: 1 = Directory, 0 = File
+         *     String: Name of Directory / File
+         *     Inner-Vector: All files / dirs of one specific dir
+         *     Outer-Vector: All files / dirs
+         *   In dir_structure:
+         *     [[<"Private", 1>, <"Bank", 1>, <"other_stuff", 1>], [<>], [<"Password.txt", 0>], 
+         *      [<"Passwords", 1>, <"secret.kdbx, 0>"], [<"MyPasswords.kdbx", 0>, <"Password_for_MyPasswords.kdbx.txt", 0>]]
+         *   How to walk through it:
+         *     def walk(int i, searchterm):
+         *         int dirs
+         *         int next = |{x element of dir_structure[i]: bool = 1}|
+         *         for j in dir_structure[i]:
+         *             if(bool):
+         *                 return walk((i + next), searchterm)
+         *                 dirs++
+         *         if(searchterm.found()):
+         *             return 1
+         *         else:
+         *             return 0
+         */
+    };
 }
