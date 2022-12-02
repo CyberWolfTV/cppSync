@@ -70,7 +70,6 @@ void my::Location::compare(std::string source, std::string target, bool output){
 
 
     bool found = false;
-    typedef std::multimap<std::string, std::string>::iterator multimap_iterator;
     
     for(auto i = moved_created.begin(); i != moved_created.end(); i++){
         for(auto j = target_states.begin(); j != target_states.end(); i++){
