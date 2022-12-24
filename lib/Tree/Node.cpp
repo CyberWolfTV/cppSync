@@ -2,13 +2,13 @@
 
 
 // Constructors
-my::Tree::Node::Node(std::string arg_name, std::vector<std::vector<std::string>> arg_edges){
+my::Node::Node(std::string arg_name, std::vector<std::vector<std::string>> arg_edges){
     name = arg_name;
     edges = arg_edges;
     is_file = false;
 }
 
-my::Tree::Node::Node(std::string arg_name, std::string arg_checksum, std::vector<std::vector<std::string>> arg_edges){
+my::Node::Node(std::string arg_name, std::string arg_checksum, std::vector<std::vector<std::string>> arg_edges){
     name = arg_name;
     edges = arg_edges;
     checksum = arg_checksum;
@@ -17,7 +17,7 @@ my::Tree::Node::Node(std::string arg_name, std::string arg_checksum, std::vector
 
 
 // Methods
-bool my::Tree::Node::is_in_node(std::vector<std::string> edge){
+bool my::Node::is_in_node(std::vector<std::string> edge){
     
 }
 
