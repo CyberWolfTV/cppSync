@@ -3,6 +3,7 @@
 
 #include <string>
 #include <filesystem>
+#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -13,6 +14,8 @@ public:
 
     std::string append(const std::string& path_to_append);
     fs::path to_fs_path();
+
+    std::vector<std::string> split();
 };
 
 

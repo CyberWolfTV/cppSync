@@ -26,7 +26,6 @@ public:
 
     explicit Location(std::string arg_path);
 
-    bool check_if_inited() const;
     void init() const;
 
     void load_configs();

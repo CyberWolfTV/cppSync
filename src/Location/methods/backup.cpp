@@ -20,7 +20,7 @@ void Location::backup(){
     json backed_up_hashes;
     for(auto & loc : available_backup_locations){
         for(PAIR i: file_hashes){
-            if(loc.is_in_scope(i.first)){
+            if(loc.is_in_scope(i.first)){   // is_in_scope for main loc is already in hashing...
                 fs::path source = fs::path(path) / fs::path(i.first);
                 fs::path target_parent = fs::path(loc.path) / fs::path(i.first).parent_path();
                 fs::create_directories(target_parent);
