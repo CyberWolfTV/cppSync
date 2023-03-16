@@ -24,6 +24,7 @@ void Location::load_configs(bool is_main_location){
         for (const std::string &loc: raw_backup_locations) {
             Location location(loc);
             location.load_configs(false);
+            // not a real recursion, gets called with is_main_location = true ONLY
             configs.backup_locations.push_back(location);
         }
     }

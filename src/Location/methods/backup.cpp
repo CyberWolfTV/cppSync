@@ -13,9 +13,12 @@ namespace fs = std::filesystem;
 
 
 void Location::backup(){
-    std::vector<Location> available_backup_locations = get_active_locs(configs.backup_locations);
     json backed_up_hashes;
-    for(auto & loc : available_backup_locations){
+    for(auto & loc : configs.backup_locations){
+        // compare the main and the loc states here
+        // maybe no or just some will already have states saved
+        // make sure it wont get hashed twice
+        // it may helps to put every kind of change in a separate loop
         for(PAIR i: file_hashes){
             if(loc.is_in_scope(i.first)){   // is_in_scope for main loc is already in hashing...
                 fs::path source = fs::path(path) / fs::path(i.first);
@@ -32,7 +35,3 @@ void Location::backup(){
         file_with_hashes.close();
     }
 }
-
-
-
-
