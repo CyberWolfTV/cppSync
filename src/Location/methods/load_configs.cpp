@@ -7,15 +7,19 @@
 #include <algorithm>
 
 
-void Location::load_configs(){
+void Location::load_configs(bool is_main_location){
     std::cout << "Loading configuration files..." << std::endl;
 
     configs.whitelist = configurations::parse_list_file(path + "/.cppSync/configs/whitelist.txt");
     configs.blacklist = configurations::parse_list_file(path + "/.cppSync/configs/blacklist.txt");
-    std::vector<std::string> raw_backup_locations = configurations::parse_list_file(path + "/.cppSync/configs/backup_locations.txt");
-    for(const std::string& loc: raw_backup_locations){
-        Location location(loc);
-        configs.backup_locations.push_back(location);
+
+    if(is_main_location) {
+        std::vector<std::string> raw_backup_locations = configurations::parse_list_file(path + "/.cppSync/configs/backup_locations.txt");
+        for (const std::string &loc: raw_backup_locations) {
+            Location location(loc);
+            location.load_configs(false);
+            configs.backup_locations.push_back(location);
+        }
     }
 }
 

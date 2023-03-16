@@ -14,6 +14,7 @@ int main(int argc, char *argv[]) {
 
     Location::DATE_TIME = current_date_time();
     Location main_instance(Location::args.name);
+    main_instance.load_configs(true);
 
 
     if(Location::args.configure){

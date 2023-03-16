@@ -28,7 +28,7 @@ public:
 
     void init() const;
 
-    void load_configs();
+    void load_configs(bool is_main_location);
     struct configurations{
         void configure(std::string loc_path);
         void save_configs();

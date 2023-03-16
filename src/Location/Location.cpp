@@ -24,6 +24,4 @@ Location::Location(std::string arg_path){
             exit(EXIT_FAILURE);
         }
     }
-
-    load_configs();
 }
