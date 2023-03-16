@@ -4,7 +4,12 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <algorithm>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
+
+void remove_inactive_locs(std::vector<std::string> *locations);
 
 
 void Location::load_configs(bool is_main_location){
@@ -15,6 +20,7 @@ void Location::load_configs(bool is_main_location){
 
     if(is_main_location) {
         std::vector<std::string> raw_backup_locations = configurations::parse_list_file(path + "/.cppSync/configs/backup_locations.txt");
+        remove_inactive_locs(&raw_backup_locations);
         for (const std::string &loc: raw_backup_locations) {
             Location location(loc);
             location.load_configs(false);
@@ -25,23 +31,36 @@ void Location::load_configs(bool is_main_location){
 
 
 std::vector<std::string> Location::configurations::parse_list_file(const std::string& file_path){
-    std::fstream whitelist_file;
-    whitelist_file.open(file_path, std::ios::in);
-    if(!whitelist_file.is_open()){
+    std::fstream file;
+    file.open(file_path, std::ios::in);
+    if(!file.is_open()){
         std::cerr << "Couldn't open " + file_path << std::endl;
         exit(EXIT_FAILURE);
     }
 
     std::vector<std::string> items;
     std::string line;
-    while(getline(whitelist_file, line)){
-        //remove leading and trailing spaces (https://stackoverflow.com/a/21815483/19808734)
-        line.erase(line.begin(), std::find_if(line.begin(), line.end(), std::bind1st(std::not_equal_to<char>(), ' ')));
-        line.erase(std::find_if(line.rbegin(), line.rend(), std::bind1st(std::not_equal_to<char>(), ' ')).base(), line.end());
+    while(getline(file, line)){
+        unsigned long beginning = line.find_first_not_of("  \t");
+        if(beginning == std::string::npos){
+            continue;
+        }
+        unsigned long ending = line.find_last_not_of(" \t") - 1;
+        line = line.substr(beginning, ending);
 
-        if(line[0] != '#' && !line.empty()){
+        if(line[0] != '#'){
             items.push_back(line);
         }
     }
     return items;
+}
+
+
+void remove_inactive_locs(std::vector<std::string> *locations){
+    for(unsigned long i = 0; i < locations->size(); i++){
+        if(!fs::is_directory(fs::path(locations->operator[](i)))){
+            locations->erase(locations->begin()+i);
+            std::cout << R"(Backup location ")" << locations->operator[](i) << R"(" is NOT available.)" << std::endl;
+        }
+    }
 }

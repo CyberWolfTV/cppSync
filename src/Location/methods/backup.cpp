@@ -9,9 +9,6 @@
 
 namespace fs = std::filesystem;
 
-
-std::vector<Location> get_active_locs(const std::vector<Location>& locs);
-
 #define PAIR std::pair<const std::string, std::string>
 
 
@@ -38,14 +35,4 @@ void Location::backup(){
 
 
 
-std::vector<Location> get_active_locs(const std::vector<Location>& locs){
-    std::vector<Location> available_locs;
-    for(const auto & loc : locs){
-        if(fs::is_directory(loc.path)){
-            available_locs.emplace_back(loc);
-        } else{
-            std::cout << R"(Backup location ")" << loc.path << R"(" is NOT available.)" << std::endl;
-        }
-    }
-    return available_locs;
-}
+
