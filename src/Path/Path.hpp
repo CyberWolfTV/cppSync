@@ -10,12 +10,14 @@ namespace fs = std::filesystem;
 
 class Path{
 public:
+    explicit Path(std::string arg_path);
+
     std::string path;
 
     std::string append(const std::string& path_to_append);
     fs::path to_fs_path();
 
-    std::vector<std::string> split();
+    [[nodiscard]] std::vector<std::string> split() const;
 };
 
 

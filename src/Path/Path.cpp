@@ -1,5 +1,11 @@
 #include "Path.hpp"
 
+#include <sstream>
+
+
+Path::Path(std::string arg_path){
+    path = std::move(arg_path);
+}
 
 std::string Path::append(const std::string& path_to_append){
     std::string place_holder;
@@ -11,22 +17,12 @@ fs::path Path::to_fs_path(){
 }
 
 
-std::vector<std::string> Path::split(){
+std::vector<std::string> Path::split() const{
     std::vector<std::string> split_path;
-
-    unsigned long beginning = 0;
     std::string part;
-    for(unsigned long i = 0; i < path.length(); i++){
-        if(path[i] == '\\' | path[i] == '/'){
-            part = path.substr(beginning, i);
-            if(part == "."){
-                beginning = i + 1;
-                continue;
-            }
-            split_path.emplace_back(part);
-        }
-        beginning = i + 1;
+    std::stringstream ss(path);
+    while (getline(ss, part, '/')){
+        split_path.push_back(part);
     }
-
     return split_path;
 }
