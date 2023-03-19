@@ -22,6 +22,7 @@ void Location::load_configs(bool is_main_location){
         std::vector<std::string> raw_backup_locations = configurations::parse_list_file(path + "/.cppSync/configs/backup_locations.txt");
         remove_inactive_locs(&raw_backup_locations);
         for (const std::string &loc: raw_backup_locations) {
+            std::cout << loc << std::endl;
             Location location(loc);
             location.load_configs(false);
             // not a real recursion, gets called with is_main_location = true ONLY
@@ -46,7 +47,10 @@ std::vector<std::string> Location::configurations::parse_list_file(const std::st
         if(beginning == std::string::npos){
             continue;
         }
-        unsigned long ending = line.find_last_not_of(" \t") - 1;
+        unsigned long ending = line.find_last_not_of(" \t") + 1;
+        if(ending == std::string::npos){
+            continue;
+        }
         line = line.substr(beginning, ending);
 
         if(line[0] != '#'){
@@ -58,7 +62,7 @@ std::vector<std::string> Location::configurations::parse_list_file(const std::st
 
 
 void remove_inactive_locs(std::vector<std::string> *locations){
-    for(unsigned long i = 0; i < locations->size(); i++){
+    for(long i = 0; i < locations->size(); i++){
         if(!fs::is_directory(fs::path(locations->operator[](i)))){
             locations->erase(locations->begin()+i);
             std::cout << R"(Backup location ")" << locations->operator[](i) << R"(" is NOT available.)" << std::endl;

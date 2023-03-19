@@ -88,7 +88,6 @@ std::string decode(std::string str){
                     decodedString += ']';
                     break;
             }
-            i++;
         }else {
             decodedString += str[i];
         }

@@ -10,7 +10,6 @@ std::map<std::string, std::string> json_to_map(std::string json){
 
     bool still_string;
     bool is_key = false;
-
     for(unsigned long long i = 0; i < json.length(); i++){
         if(json[i] == '"'){
             i++;
@@ -19,10 +18,11 @@ std::map<std::string, std::string> json_to_map(std::string json){
             while(still_string){
                 if(json[i] == '"'){
                     still_string = false;
-                    is_key = ~is_key;
-                    i += string.length() + 1;
+                    is_key = !is_key;
+                    i++;
                 }else{
                     string += json[i];
+                    i++;
                 }
             }
 
@@ -51,7 +51,9 @@ void json::addpair(const std::string& key, const std::string& value){
 
 std::string json::get(){
     std::string data = json_object;
-    data.erase(data.size() -2);
+    if(data.size() > 2) {
+        data.erase(data.size() - 2);
+    }
     data = '{' + data + '}';
     return data;
 }

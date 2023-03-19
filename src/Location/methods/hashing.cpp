@@ -12,6 +12,8 @@ namespace fs = std::filesystem;
 
 
 void Location::get_hashes(){
+    fs::current_path(fs::path(this->path));
+
     json json_hashes;
     std::stack<fs::path> abc_directories;
     abc_directories.emplace(".");

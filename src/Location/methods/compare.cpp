@@ -66,30 +66,29 @@ void Location::compare(const std::string& source, const std::string& target){
             continue;
         }
     }
-
     bool found = false;
-    for(auto i = moved_created.begin(); i != moved_created.end(); i++){
-        for(auto j = target_states.begin(); j != target_states.end(); i++){
-            if(i->second == j->second){
-                changes.moved[j->first] = i->first;
+    for(auto & i : moved_created){
+        for(auto & target_state : target_states){
+            if(i.second == target_state.second){
+                changes.moved[target_state.first] = i.first;
                 found = true;
             }
         }
         if(!found){
-            changes.created.push_back(i->first);
+            changes.created.emplace_back(i.first);
         }
         found = false;
     }
 
-    for(auto i = moved_deleted.begin(); i != moved_deleted.end(); i++){
-        for(auto j = source_states.begin(); j != source_states.end(); i++){
-            if(i->second == j->second){
-                changes.moved[i->first] = j->first;
+    for(auto & i : moved_deleted){
+        for(auto & source_state : source_states){
+            if(i.second == source_state.second){
+                changes.moved[i.first] = source_state.first;
                 found = true;
             }
         }
         if(!found){
-            changes.deleted.push_back(i->first);
+            changes.deleted.push_back(i.first);
         }
         found = false;
     }

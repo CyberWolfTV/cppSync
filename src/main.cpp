@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
         main_instance.configs.configure(main_instance.path);
     }
 
-    if(Location::args.hash){
+    if(Location::args.hash || Location::args.backup){
         main_instance.get_hashes();
     }
 

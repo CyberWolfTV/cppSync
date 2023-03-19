@@ -55,6 +55,8 @@ public:
     } changes;
 
     void backup();
+    void save_new_states();
+    void compare_all_for_backup();
 
     void restore();
 };
