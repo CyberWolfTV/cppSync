@@ -149,7 +149,7 @@ std::string sha256_class::sha256(const std::string& filename){
     }
 
     // Add 0's and the msg_len
-    if(msg_len % 64 <= 56){
+    if(msg_len % 64 < 56){
         w[14] |= (msg_len*8 >> 32);
         w[15] |= msg_len*8;
 
