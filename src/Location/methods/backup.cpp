@@ -125,15 +125,17 @@ void move_old_versions(const fs::path& file_name, int old_versions){
         return;
     }
 
-    fs::path parent = file_name.parent_path();
-    fs::path name = file_name.filename();
-    std::string name_str = name.c_str();
+    const fs::path old_path = fs::current_path();
+    fs::current_path(file_name.parent_path());
 
-    std::string pattern_str = "\\." + name_str + "\\.bak-[0-9][0-9][0-9]";
-    std::regex pattern = std::regex(pattern_str);
+    const fs::path name = file_name.filename();
+    const std::string name_str = name.c_str();
+
+    const std::string pattern_str = "\\." + name_str + "\\.bak-[0-9][0-9][0-9]";
+    const std::regex pattern = std::regex(pattern_str);
 
     std::vector<fs::path> old_version_files;
-    for(fs::path const& dir_entry: std::filesystem::recursive_directory_iterator{parent}){
+    for(fs::path const& dir_entry: std::filesystem::recursive_directory_iterator{fs::path(".")}){
         if(fs::is_directory(dir_entry)){
             continue;
         }
@@ -143,7 +145,7 @@ void move_old_versions(const fs::path& file_name, int old_versions){
     }
     std::sort(old_version_files.rbegin(), old_version_files.rend()); // sorts reversed (9, 8, ...)
 
-    while(true){
+    while(!old_version_files.empty()){
         // there can be max old_versions (int) .bak-XXX files, make sure teh others get removed:
         std::string file = old_version_files[0].c_str();
         int version_num = stoi(file.substr(file.find_last_of('-')+1));
@@ -161,4 +163,9 @@ void move_old_versions(const fs::path& file_name, int old_versions){
         std::string new_name_str = "." + name_str + ".bak-" + std::to_string(new_num);
         fs::rename(old_version, fs::path(new_name_str));
     }
+
+    std::string new_name = "." + name_str + ".bak-001";
+    fs::rename(file_name, fs::path(new_name));
+
+    fs::current_path(old_path);
 }
