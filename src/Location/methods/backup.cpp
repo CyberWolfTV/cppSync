@@ -4,6 +4,8 @@
 #include <filesystem>
 #include <vector>
 #include <fstream>
+#include <regex>
+#include <algorithm>
 
 #include "../../helper_functions/helper_functions.hpp"
 
@@ -12,11 +14,14 @@ namespace fs = std::filesystem;
 #define PAIR std::pair<const std::string, std::string>
 
 
+void move_old_versions(const fs::path& file_name, int old_versions);
+
+
 void Location::backup(){
     compare_all_for_backup();
 
-    for(auto & loc : configs.backup_locations){
-        // it may helps to put every kind of change in a separate loop
+    for(Location& loc : configs.backup_locations){
+        // it may help to put every kind of change in a separate loop
         // created loop
         for(const std::string& i: loc.changes.created){
             if(loc.is_in_scope(i)){
@@ -32,27 +37,28 @@ void Location::backup(){
             if(loc.is_in_scope(i.first) && loc.is_in_scope(i.second)){
                 fs::rename({loc.path + '/' + i.first}, {loc.path + '/' + i.second});
             } else if(!loc.is_in_scope(i.first) && loc.is_in_scope(i.second)){
+                // handle like created
                 fs::path target_parent = fs::path(loc.path) / fs::path(i.second);
                 fs::create_directories(target_parent.parent_path());
                 fs::copy_file({path + '/' + i.first}, {loc.path + '/' + i.second});
             } else{
-                // TODO i.first -> {'.' + i.first + '.bak-XXX'}
+                // handle like deleted
+                move_old_versions({loc.path + '/' + i.first}, loc.configs.old_versions);
             }
         }
 
         // changed loop
         for(const std::string& i: loc.changes.changed){
             if(loc.is_in_scope(i)){
-                // TODO i.first -> {'.' + i.first + '.bak-XXX'}
-
+                move_old_versions({loc.path + '/' + i}, loc.configs.old_versions);
                 fs::copy_file({path + '/' + i}, {loc.path + '/' + i});
             }
         }
 
         // deleted loop
-        for(const std::string& i: loc.changes.changed){
+        for(const std::string& i: loc.changes.deleted){
             if(loc.is_in_scope(i)){
-                // TODO i.first -> {'.' + i.first + '.bak-XXX'}
+                move_old_versions({loc.path + '/' + i}, loc.configs.old_versions);
             }
         }
     }
@@ -62,7 +68,7 @@ void Location::backup(){
 
 
 void Location::save_new_states(){
-    for(auto & loc: configs.backup_locations){
+    for(Location& loc: configs.backup_locations){
         json backed_up_hashes;
         for(PAIR i: file_hashes){
             if(loc.is_in_scope(i.first)){
@@ -77,17 +83,17 @@ void Location::save_new_states(){
 }
 
 
-void Location::compare_all_for_backup() {
+void Location::compare_all_for_backup(){
     std::string state;
-    for(const auto & entry : fs::directory_iterator(fs::path(path + "/.cppSync/hashes"))){
+    for(const fs::directory_entry& entry : fs::directory_iterator(fs::path(path + "/.cppSync/hashes"))){
         state = entry.path();
         break;
     }
 
-    for (auto &loc: configs.backup_locations) {
+    for(Location& loc: configs.backup_locations){
         // get most recent states of the backup location
         std::string loc_state;
-        for (const auto &entry: fs::directory_iterator(fs::path(loc.path + "/.cppSync/hashes"))) {
+        for(const fs::directory_entry& entry: fs::directory_iterator(fs::path(loc.path + "/.cppSync/hashes"))){
             loc_state = entry.path();
             break;
         }
@@ -107,5 +113,52 @@ void Location::compare_all_for_backup() {
         if(initial_state){
             fs::remove(fs::path(loc_state));
         }
+    }
+}
+
+
+void move_old_versions(const fs::path& file_name, int old_versions){
+    // move every file [. + filename + .bak-XXX] one up
+    // -> [. + filename + .bak-(XXX+1)]
+    // -> so the new file can just be copied to the destination
+    if(!fs::is_regular_file(file_name)){
+        return;
+    }
+
+    fs::path parent = file_name.parent_path();
+    fs::path name = file_name.filename();
+    std::string name_str = name.c_str();
+
+    std::string pattern_str = "\\." + name_str + "\\.bak-[0-9][0-9][0-9]";
+    std::regex pattern = std::regex(pattern_str);
+
+    std::vector<fs::path> old_version_files;
+    for(fs::path const& dir_entry: std::filesystem::recursive_directory_iterator{parent}){
+        if(fs::is_directory(dir_entry)){
+            continue;
+        }
+        if (std::regex_match(dir_entry.c_str(), pattern)){
+               old_version_files.emplace_back(dir_entry);
+        }
+    }
+    std::sort(old_version_files.rbegin(), old_version_files.rend()); // sorts reversed (9, 8, ...)
+
+    while(true){
+        // there can be max old_versions (int) .bak-XXX files, make sure teh others get removed:
+        std::string file = old_version_files[0].c_str();
+        int version_num = stoi(file.substr(file.find_last_of('-')+1));
+        if(version_num < old_versions){
+            break;
+        }
+        fs::remove(old_version_files[0]);
+        old_version_files.erase(old_version_files.begin());
+    }
+
+    for(fs::path const& old_version: old_version_files){
+        // increment number + rename
+        std::string old_version_str = old_version.c_str();
+        int new_num = stoi(old_version_str.substr(old_version_str.find_last_of('-')+1)) + 1;
+        std::string new_name_str = "." + name_str + ".bak-" + std::to_string(new_num);
+        fs::rename(old_version, fs::path(new_name_str));
     }
 }
