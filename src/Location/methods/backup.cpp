@@ -35,7 +35,10 @@ void Location::backup(){
         for(const PAIR& i: loc.changes.moved){
             // from i.first to i.second
             if(loc.is_in_scope(i.first) && loc.is_in_scope(i.second)){
-                fs::rename({loc.path + '/' + i.first}, {loc.path + '/' + i.second});
+                fs::path first = fs::canonical(loc.path / fs::path(i.first));
+                fs::create_directories(loc.path / fs::path(i.second).parent_path());
+                fs::path second = fs::canonical(loc.path / fs::path(i.second).parent_path());
+                fs::rename(first, second / fs::path(i.second).filename());
             } else if(!loc.is_in_scope(i.first) && loc.is_in_scope(i.second)){
                 // handle like created
                 fs::path target_parent = fs::path(loc.path) / fs::path(i.second);
