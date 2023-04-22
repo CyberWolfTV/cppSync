@@ -7,7 +7,7 @@ function backup(){
 
     echo "$test_env/$backup_location" >> "$test_env/main/.cppSync/configs/backup_locations.txt"
 
-    trash=$(./cppSync --backup "main")
+    ./cppSync --backup "main" >> /dev/null
     mkdir "tmp"
     mv "main/.cppSync" "tmp/.cppSync"
 
