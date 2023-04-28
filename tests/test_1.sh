@@ -2,6 +2,8 @@
 
 
 # 1 file changed/deleted/moved/renamed/created
+# internally renamed and moved is the same:
+# so just one of em at a time for this test
 function test_1(){
     home_dir=$1
 
@@ -16,7 +18,7 @@ function test_1(){
     create_main
     init_location main 002
     mkdir backup1
-    init_location backup1
+    init_location backup1 002
     hashes=$(backup backup1 $test_env)
 
     # changed
@@ -47,7 +49,7 @@ function test_1(){
 
 
 
-    if [ -f backup1/deleted/deleted_file1.txt ]; then
+    if [ -f backup1/deleted/deleted_file1.txt ] || [ -f main/deleted/deleted_file1.txt ]; then
             echo "ERROR test_1"
             echo "backup1/deleted/deleted_file1.txt did not got deleted."
     fi
