@@ -53,6 +53,7 @@ void Location::backup(){
         // changed loop
         for(const std::string& i: loc.changes.changed){
             if(loc.is_in_scope(i)){
+                std::cout << "wgergergererg" << std::endl;
                 move_old_versions({loc.path + '/' + i}, loc.configs.old_versions);
                 fs::copy_file({path + '/' + i}, {loc.path + '/' + i});
             }
@@ -127,6 +128,7 @@ void move_old_versions(const fs::path& file_name, int old_versions){
     if(!fs::is_regular_file(file_name)){
         return;
     }
+    std::cout << old_versions;
 
     const fs::path old_path = fs::current_path();
     fs::current_path(file_name.parent_path());
@@ -134,7 +136,7 @@ void move_old_versions(const fs::path& file_name, int old_versions){
     const fs::path name = file_name.filename();
     const std::string name_str = name.c_str();
 
-    const std::string pattern_str = "\\." + name_str + "\\.bak-[0-9][0-9][0-9]";
+    const std::string pattern_str = "\\./." + name_str + "\\.bak-[0-9][0-9][0-9]";
     const std::regex pattern = std::regex(pattern_str);
 
     std::vector<fs::path> old_version_files;
@@ -162,13 +164,18 @@ void move_old_versions(const fs::path& file_name, int old_versions){
     for(fs::path const& old_version: old_version_files){
         // increment number + rename
         std::string old_version_str = old_version.c_str();
-        int new_num = stoi(old_version_str.substr(old_version_str.find_last_of('-')+1)) + 1;
-        std::string new_name_str = "." + name_str + ".bak-" + std::to_string(new_num);
+        char str[4];
+        snprintf(str, 4, "%03d", stoi(old_version_str.substr(old_version_str.find_last_of('-')+1)) + 1);
+        std::string new_name_str = "." + name_str + ".bak-" + str;
         fs::rename(old_version, fs::path(new_name_str));
     }
 
-    std::string new_name = "." + name_str + ".bak-001";
-    fs::rename(file_name, fs::path(new_name));
+    if(old_versions == 0) {
+        fs::remove(name);
+    } else {
+        std::string new_name = "." + name_str + ".bak-001";
+        fs::rename(name, fs::path(new_name));
+    }
 
     fs::current_path(old_path);
 }

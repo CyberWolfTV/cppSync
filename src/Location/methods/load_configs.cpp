@@ -4,7 +4,10 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <sstream>
 #include <filesystem>
+
+#include "../../helper_functions/helper_functions.hpp"
 
 namespace fs = std::filesystem;
 
@@ -14,6 +17,19 @@ void remove_inactive_locs(std::vector<std::string> *locations);
 
 void Location::load_configs(bool is_main_location){
     std::cout << "Loading configuration files..." << std::endl;
+
+    std::fstream file;
+    file.open(path + "/.cppSync/configs/.config", std::ios::in);
+    if(!file.is_open()){
+        std::cerr << "Couldn't open " + path + "/.cppSync/configs/.config" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    std::stringstream stream;
+    stream << file.rdbuf();
+    std::string json = stream.str();
+    std::map<std::string, std::string> config_file = json_to_map(json);
+
+    configs.old_versions = stoi(config_file["bak"]);
 
     configs.whitelist = configurations::parse_list_file(path + "/.cppSync/configs/whitelist.txt");
     configs.blacklist = configurations::parse_list_file(path + "/.cppSync/configs/blacklist.txt");
