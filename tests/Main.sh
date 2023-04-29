@@ -7,6 +7,7 @@ source test_1.sh
 source test_2.sh
 source test_3.sh
 source test_4.sh
+source test_5.sh
 
 
 # 1 file changed/deleted/moved/renamed/created
@@ -24,7 +25,12 @@ echo "TEST 3"
 test_3 "$home_dir"
 echo ""
 
-# position-edge-cases [./file | ./dir/dir/dir/file]
+# test whether the bak parameter is working correctly
 echo "TEST 4"
 test_4 "$home_dir"
+echo ""
+
+# position-edge-cases [./file | ./dir/dir/dir/file]
+echo "TEST 5"
+test_5 "$home_dir"
 echo ""
