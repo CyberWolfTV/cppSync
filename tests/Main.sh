@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 
+# README:
+# When passing an array created with "declare -a" to a function it will bug when u write ${arr[@]}.
+
 source configs.sh
 
 source test_1.sh
@@ -30,7 +33,7 @@ echo "TEST 4"
 test_4 "$home_dir"
 echo ""
 
-# position-edge-cases [./file | ./dir/dir/dir/file]
+# test the is_in_scope() function, black- and whitelists
 echo "TEST 5"
 test_5 "$home_dir"
 echo ""
