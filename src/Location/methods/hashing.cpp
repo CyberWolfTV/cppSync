@@ -21,20 +21,18 @@ void Location::get_hashes(){
         fs::path dir = abc_directories.top();
         abc_directories.pop();
         for (auto const& dir_entry : fs::directory_iterator{dir}){
-            if(is_in_scope(dir_entry.path().string())){
-                if(fs::is_regular_file(dir_entry.path())){
-                    std::string hash = sha256(dir_entry.path().string());
-                    std::string file_path = dir_entry.path().string();
-                    file_hashes.insert(std::pair<std::string, std::string>(file_path, hash));
-                    json_hashes.addpair(file_path, hash);
-                }
-                else if(fs::is_directory(dir_entry.path())){
-                    abc_directories.emplace(dir_entry.path());
-                }
-                else{
-                    // TODO: catch other filetypes
-                    std::cout << "bad filetype, pls catch" << std::endl;
-                }
+            if(fs::is_regular_file(dir_entry.path()) && is_in_scope(dir_entry.path())){
+                std::string hash = sha256(dir_entry.path().string());
+                std::string file_path = dir_entry.path().string();
+                file_hashes.insert(std::pair<std::string, std::string>(file_path, hash));
+                json_hashes.addpair(file_path, hash);
+            }
+            else if(fs::is_directory(dir_entry.path())){
+                abc_directories.emplace(dir_entry.path());
+            }
+            else{
+                // TODO: catch other filetypes
+                std::cout << "bad filetype, pls catch" << std::endl;
             }
         }
     }

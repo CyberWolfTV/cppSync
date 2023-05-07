@@ -53,7 +53,6 @@ void Location::backup(){
         // changed loop
         for(const std::string& i: loc.changes.changed){
             if(loc.is_in_scope(i)){
-                std::cout << "wgergergererg" << std::endl;
                 move_old_versions({loc.path + '/' + i}, loc.configs.old_versions);
                 fs::copy_file({path + '/' + i}, {loc.path + '/' + i});
             }
