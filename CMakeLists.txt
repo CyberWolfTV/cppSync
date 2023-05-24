@@ -27,4 +27,11 @@ add_executable(cppSync
         src/Location/methods/find_duplicates.cpp
         src/Location/methods/configure.cpp
         src/Location/methods/is_in_scope.cpp
-        src/Path/Path.cpp)
+        src/Tree/Node.cpp
+        src/Configuration/Configs.cpp
+        src/Configuration/methods/load_node_configs.cpp
+        src/Configuration/methods/load_location_config.cpp
+        src/Configuration/methods/get_node_config_ptr.cpp
+        src/Location/methods/add_path_to_tree.cpp
+        src/Configuration/methods/get_clean_lines.cpp
+)

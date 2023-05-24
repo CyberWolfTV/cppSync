@@ -3,17 +3,15 @@
 #include <iostream>
 #include <string>
 #include <filesystem>
-#include <vector>
 
 #include "../helper_functions/helper_functions.hpp"
-
 
 namespace fs = std::filesystem;
 
 
-Location::Location(std::string arg_path){
-    path = std::move(arg_path);
-    bool is_inited = fs::is_directory(path + "/.cppSync");
+Location::Location(const std::string& path){
+    this->path = canonical(fs::path(path));
+    bool is_inited = fs::is_directory(this->path / ".cppSync");
 
     if(!is_inited){
         std::cout << path << " is not inited yet." << std::endl;
@@ -24,4 +22,9 @@ Location::Location(std::string arg_path){
             exit(EXIT_FAILURE);
         }
     }
+
+    this->configs.load_location_config(this->path);
+    this->configs.load_node_configs(this->path);
+
+    this->tree.nodes.emplace_back(this->path, nullptr, &this->configs);
 }

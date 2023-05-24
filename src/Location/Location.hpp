@@ -5,6 +5,9 @@
 #include <vector>
 #include <map>
 
+#include "../Tree/Node.hpp"
+#include "../Configuration/Configs.hpp"
+
 
 struct arguments{
     std::string name;
@@ -20,24 +23,13 @@ struct arguments{
 
 class Location {
 public:
-    std::string path;
+    fs::path path;
     inline static std::string DATE_TIME;
     inline static struct arguments args;
 
-    explicit Location(std::string arg_path);
+    explicit Location(const std::string& path);
 
     void init() const;
-
-    void load_configs(bool is_main_location);
-    struct configurations{
-        void configure(std::string loc_path);
-        void save_configs();
-        static std::vector<std::string> parse_list_file(const std::string& file_path);
-        int old_versions;
-        std::vector<Location> backup_locations;
-        std::vector<std::string> whitelist;
-        std::vector<std::string> blacklist;
-    } configs;
 
     void get_hashes();
     bool is_in_scope(std::string file_or_dir);
@@ -59,6 +51,14 @@ public:
     void compare_all_for_backup();
 
     void restore();
+
+    struct Tree{
+        std::vector<Node> nodes;
+        void add_path_to_tree(const fs::path& file_path, Configs* config);
+    } tree;
+
+    Configs configs;
+    std::vector<Location> backup_locations;
 };
 
 #endif
