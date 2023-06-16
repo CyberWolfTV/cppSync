@@ -31,7 +31,8 @@ add_executable(cppSync
         src/Configuration/Configs.cpp
         src/Configuration/methods/load_node_configs.cpp
         src/Configuration/methods/load_location_config.cpp
-        src/Configuration/methods/get_node_config_ptr.cpp
+        src/Tree/methods/get_node_config_ptr.cpp
         src/Location/methods/add_path_to_tree.cpp
         src/Configuration/methods/get_clean_lines.cpp
-)
+        src/Tree/methods/detect_git_repos.cpp
+        src/Tree/methods/get_leafs.cpp)

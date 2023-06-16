@@ -21,8 +21,16 @@ struct arguments{
 };
 
 
+struct LocationConfig{
+    std::vector<std::string> backup_locs;
+    std::vector<std::string> whitelist;
+    std::vector<std::string> blacklist;
+};
+
+
 class Location {
 public:
+    LocationConfig config;
     fs::path path;
     inline static std::string DATE_TIME;
     inline static struct arguments args;
