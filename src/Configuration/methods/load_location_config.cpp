@@ -5,10 +5,10 @@
 #include <vector>
 
 
-void Configs::load_location_config(const fs::path& path){
-    this->location_config.whitelist = parse_list_file(fs::path(path / ".cppSync/configs/whitelist.txt"));
-    this->location_config.blacklist = parse_list_file(fs::path(path / ".cppSync/configs/blacklist.txt"));
-    this->location_config.backup_locs = parse_list_file(fs::path(path / ".cppSync/configs/backup_locations.txt"));
+void Configs::load_location_config(const fs::path& path,  LocationConfig* config){
+    config->whitelist = parse_list_file(fs::path(path / ".cppSync/configs/whitelist.txt"));
+    config->blacklist = parse_list_file(fs::path(path / ".cppSync/configs/blacklist.txt"));
+    config->backup_locs = parse_list_file(fs::path(path / ".cppSync/configs/backup_locations.txt"));
 }
 
 

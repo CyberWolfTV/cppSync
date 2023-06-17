@@ -6,7 +6,6 @@
 #include <map>
 
 #include "../Tree/Node.hpp"
-#include "../Configuration/Configs.hpp"
 
 
 struct arguments{
@@ -15,7 +14,6 @@ struct arguments{
     bool backup = false;
     bool find_duplicates = false;
     bool hash = false;
-    bool configure = false;
     bool no_questions = false;
     bool compare_default = false;
 };
@@ -34,6 +32,9 @@ public:
     fs::path path;
     inline static std::string DATE_TIME;
     inline static struct arguments args;
+
+    LocationConfig configs;
+    std::vector<Location> backup_locations;
 
     explicit Location(const std::string& path);
 
@@ -62,11 +63,9 @@ public:
 
     struct Tree{
         std::vector<Node> nodes;
-        void add_path_to_tree(const fs::path& file_path, Configs* config);
+        void add_path_to_tree(const fs::path& file_path);
     } tree;
-
-    Configs configs;
-    std::vector<Location> backup_locations;
 };
+
 
 #endif

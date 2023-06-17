@@ -5,6 +5,7 @@
 #include <filesystem>
 
 #include "../helper_functions/helper_functions.hpp"
+#include "../Configuration/Configs.hpp"
 
 namespace fs = std::filesystem;
 
@@ -23,8 +24,6 @@ Location::Location(const std::string& path){
         }
     }
 
-    this->configs.load_location_config(this->path);
-    this->configs.load_node_configs(this->path);
-
-    this->tree.nodes.emplace_back(this->path, nullptr, &this->configs);
+    this->tree.nodes.emplace_back(this->path, nullptr);
+    Configs::load_location_config(this->path, &this->config);
 }

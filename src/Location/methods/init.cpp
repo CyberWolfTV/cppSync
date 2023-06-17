@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 void Location::init() const{
     std::string old_path = fs::current_path();
 
-    std::string cpp_sync_directory = path +  "/.cppSync/";
+    std::string cpp_sync_directory = path /  "/.cppSync/";
     fs::create_directory(cpp_sync_directory);
     fs::current_path(cpp_sync_directory);
 

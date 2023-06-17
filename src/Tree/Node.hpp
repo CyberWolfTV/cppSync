@@ -5,8 +5,6 @@
 #include <filesystem>
 #include <map>
 
-#include "../Configuration/Configs.hpp"
-
 namespace fs = std::filesystem;
 
 
@@ -18,15 +16,14 @@ struct NodeConfig{
 
 class Node{
 public:
-    Node(const fs::path& path, Node* parent, Configs* configs);
+    Node(const fs::path& path, Node* parent);
 
     fs::path path;
-    NodeConfig config;
+    NodeConfig config{};
     Node* parent;
     std::map<fs::path, Node*> childs;
 
     NodeConfig* get_node_config_ptr(const fs::path& path_to_node);
-    static NodeConfig* get_node_config_ptr(const fs::path& path_to_node, Node* node);
 };
 
 
@@ -35,5 +32,6 @@ public:
     void detect_git_repos();
     std::vector<Node*> get_leafs();
 };
+
 
 #endif

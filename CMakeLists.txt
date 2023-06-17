@@ -25,10 +25,8 @@ add_executable(cppSync
         src/Location/methods/hashing.cpp
         src/Location/methods/compare.cpp
         src/Location/methods/find_duplicates.cpp
-        src/Location/methods/configure.cpp
         src/Location/methods/is_in_scope.cpp
         src/Tree/Node.cpp
-        src/Configuration/Configs.cpp
         src/Configuration/methods/load_node_configs.cpp
         src/Configuration/methods/load_location_config.cpp
         src/Tree/methods/get_node_config_ptr.cpp

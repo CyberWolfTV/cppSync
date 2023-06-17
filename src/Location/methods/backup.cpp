@@ -20,14 +20,14 @@ void move_old_versions(const fs::path& file_name, int old_versions);
 void Location::backup(){
     compare_all_for_backup();
 
-    for(Location& loc : configs.backup_locations){
+    for(Location& loc : this->backup_locations){
         // it may help to put every kind of change in a separate loop
         // created loop
         for(const std::string& i: loc.changes.created){
             if(loc.is_in_scope(i)){
                 fs::path target_parent = fs::path(loc.path) / fs::path(i);
                 fs::create_directories(target_parent.parent_path());
-                fs::copy_file({path + '/' + i}, {loc.path + '/' + i});
+                fs::copy_file({path / fs::path(i)}, {loc.path / fs::path(i)});
             }
         }
 
@@ -43,25 +43,28 @@ void Location::backup(){
                 // handle like created
                 fs::path target_parent = fs::path(loc.path) / fs::path(i.second);
                 fs::create_directories(target_parent.parent_path());
-                fs::copy_file({path + '/' + i.first}, {loc.path + '/' + i.second});
+                fs::copy_file({path / fs::path(i.first)}, {loc.path / fs::path(i.second)});
             } else{
                 // handle like deleted
-                move_old_versions({loc.path + '/' + i.first}, loc.configs.old_versions);
+                int old_versions = this->tree.nodes[0].get_node_config_ptr(fs::path(i.first))->old_versions;
+                move_old_versions({loc.path / fs::path(i.first)}, old_versions);
             }
         }
 
         // changed loop
         for(const std::string& i: loc.changes.changed){
             if(loc.is_in_scope(i)){
-                move_old_versions({loc.path + '/' + i}, loc.configs.old_versions);
-                fs::copy_file({path + '/' + i}, {loc.path + '/' + i});
+                int old_versions = loc.tree.nodes[0].get_node_config_ptr(fs::path(i))->old_versions;
+                move_old_versions((loc.path / fs::path(i)), old_versions);
+                fs::copy_file((path / fs::path(i)), (loc.path / fs::path(i)));
             }
         }
 
         // deleted loop
         for(const std::string& i: loc.changes.deleted){
             if(loc.is_in_scope(i)){
-                move_old_versions({loc.path + '/' + i}, loc.configs.old_versions);
+                int old_versions = loc.tree.nodes[0].get_node_config_ptr(fs::path(i))->old_versions;
+                move_old_versions({loc.path / fs::path(i)}, old_versions);
             }
         }
     }
@@ -71,7 +74,7 @@ void Location::backup(){
 
 
 void Location::save_new_states(){
-    for(Location& loc: configs.backup_locations){
+    for(Location& loc: backup_locations){
         json backed_up_hashes;
         for(PAIR i: file_hashes){
             if(loc.is_in_scope(i.first)){
@@ -88,15 +91,15 @@ void Location::save_new_states(){
 
 void Location::compare_all_for_backup(){
     std::string state;
-    for(const fs::directory_entry& entry : fs::directory_iterator(fs::path(path + "/.cppSync/hashes"))){
+    for(const fs::directory_entry& entry : fs::directory_iterator(fs::path(path / "/.cppSync/hashes"))){
         state = entry.path();
         break;
     }
 
-    for(Location& loc: configs.backup_locations){
+    for(Location& loc: backup_locations){
         // get most recent states of the backup location
         std::string loc_state;
-        for(const fs::directory_entry& entry: fs::directory_iterator(fs::path(loc.path + "/.cppSync/hashes"))){
+        for(const fs::directory_entry& entry: fs::directory_iterator(fs::path(loc.path / "/.cppSync/hashes"))){
             loc_state = entry.path();
             break;
         }
@@ -104,9 +107,8 @@ void Location::compare_all_for_backup(){
         bool initial_state = false;
         if(loc_state.empty()){
             loc.get_hashes();
-            fs::rename(fs::path(loc.path + "/.cppSync/hashes/" + DATE_TIME), fs::path(loc.path + "/.cppSync/hashes/initial_state"));
-            loc_state = loc.path + "/.cppSync/hashes/initial_state";
-
+            fs::rename(fs::path(loc.path / "/.cppSync/hashes/" / fs::path(DATE_TIME)), fs::path(loc.path / "/.cppSync/hashes/initial_state"));
+            loc_state = loc.path / "/.cppSync/hashes/initial_state";
             initial_state = true;
         }
 

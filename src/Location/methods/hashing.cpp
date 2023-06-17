@@ -36,7 +36,7 @@ void Location::get_hashes(){
             }
         }
     }
-    std::ofstream file_with_hashes(path + "/.cppSync/hashes/" + DATE_TIME);
+    std::ofstream file_with_hashes(path / "/.cppSync/hashes/" / fs::path(DATE_TIME));
     file_with_hashes << json_hashes.get() << std::endl;
     file_with_hashes.close();
 }

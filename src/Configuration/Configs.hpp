@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 
 class Configs{
 public:
-    void load_location_config(const fs::path& path);
+    static void load_location_config(const fs::path& path, LocationConfig* config);
     static void load_node_configs(RootNode* root);
 
 private:
